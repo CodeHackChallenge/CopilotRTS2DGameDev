@@ -1,0 +1,19 @@
+AssetManager manager = new AssetManager();
+
+// Load a map file
+MapDefinition map = manager.load("resources/maps/map1.txt", (name, in) -> {
+    List<String> lines = new BufferedReader(new InputStreamReader(in))
+            .lines().toList();
+    return new MapDefinition(name, lines);
+});
+
+// Load a config file
+Config config = manager.load("resources/config/game.properties", (name, in) -> {
+    Properties props = new Properties();
+    props.load(in);
+    return new Config(name, props);
+});
+
+// Access data
+System.out.println("Map lines: " + map.getLines());
+System.out.println("Game speed: " + config.get("tickRate"));
