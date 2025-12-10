@@ -1,8 +1,3 @@
-import javax.swing.*;
-import java.awt.*;
-import java.util.ArrayList;
-import java.util.List;
-
 public class GamePanel extends Canvas implements Runnable {
     private Thread thread;
     private boolean running = false;
@@ -11,17 +6,20 @@ public class GamePanel extends Canvas implements Runnable {
     private RenderSystem renderSystem = new RenderSystem();
     private MovementSystem movementSystem = new MovementSystem();
     private MouseInput mouseInput;
+    private KeyInput keyInput;
+
+    private TileMapComponent tileMap;
+    private TileMapSystem tileMapSystem = new TileMapSystem();
 
     public GamePanel() {
         setPreferredSize(new Dimension(728, 728));
         setBackground(Color.BLACK);
 
-        // Create soldier
+        // Soldier entity
         Entity soldier = new Entity(1);
         Position pos = new Position(100, 100);
         Sprite sprite = new Sprite(Color.WHITE, 64, 64);
         BoundsComponent bounds = new BoundsComponent(pos.x, pos.y, sprite.width, sprite.height);
-
         soldier.addComponent(pos);
         soldier.addComponent(sprite);
         soldier.addComponent(bounds);
@@ -29,6 +27,17 @@ public class GamePanel extends Canvas implements Runnable {
 
         mouseInput = new MouseInput(entities);
         addMouseListener(mouseInput);
+
+        keyInput = new KeyInput();
+        addKeyListener(keyInput);
+
+        // Load map
+        try {
+            MapConfig config = MapConfig.defaultConfig();
+            tileMap = TileMapLoader.loadFromFile("map.txt", config);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void start() {
@@ -69,7 +78,24 @@ public class GamePanel extends Canvas implements Runnable {
         g.setColor(Color.BLACK);
         g.fillRect(0, 0, getWidth(), getHeight());
 
+        // Draw map
+        if (tileMap != null) {
+            tileMapSystem.render(g, tileMap);
+        }
+
+        // Draw entities
         renderSystem.render(g, entities);
+
+        // Toggle bounds visibility
+        if (keyInput.isShowBounds()) {
+            for (Entity e : entities) {
+                BoundsComponent bc = e.getComponent(BoundsComponent.class);
+                if (bc != null) {
+                    g.setColor(Color.RED);
+                    g.draw(bc.bounds);
+                }
+            }
+        }
 
         g.dispose();
         bs.show();
