@@ -1,13 +1,11 @@
 import java.awt.Rectangle;
 
-public class BoundsComponent {
+public class BoundsComponent implements Component {
     public Rectangle bounds;
-
-    public BoundsComponent(int x, int y, int width, int height) {
-        this.bounds = new Rectangle(x, y, width, height);
+    public BoundsComponent(int x, int y, int w, int h) {
+        this.bounds = new Rectangle(x, y, w, h);
     }
-
-    public void update(Position pos, int width, int height) {
-        bounds.setBounds(pos.x, pos.y, width, height);
+    public void update(Position pos, int w, int h) {
+        bounds.setBounds(pos.x, pos.y, w, h);
     }
 }
