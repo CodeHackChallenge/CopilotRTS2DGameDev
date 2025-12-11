@@ -6,45 +6,42 @@ import java.util.List;
 public class MouseInput extends MouseAdapter {
     private final List<Entity> entities;
     private final TileMapComponent tileMap;
-    private final int offsetXRef[];
-    private final int offsetYRef[];
+    private final int[] offsetXRef;
+    private final int[] offsetYRef;
 
     private Entity selectedEntity;
     private Position moveTarget;
+    private Point mousePoint = new Point(0,0); // <-- restore hover tracking
 
     public MouseInput(List<Entity> entities, TileMapComponent tileMap,
                       int[] offsetXRef, int[] offsetYRef) {
         this.entities = entities;
         this.tileMap = tileMap;
-        this.offsetXRef = offsetXRef; // pass array reference so we can read live offsets
+        this.offsetXRef = offsetXRef;
         this.offsetYRef = offsetYRef;
     }
 
     @Override
     public void mousePressed(MouseEvent e) {
-        Point click = e.getPoint();
+        mousePoint = e.getPoint(); // update hover point on press too
         boolean clickedOnEntity = false;
 
-        // Check if clicked on an entity
         for (Entity entity : entities) {
             BoundsComponent bc = entity.getComponent(BoundsComponent.class);
-            if (bc != null && bc.bounds.contains(click)) {
+            if (bc != null && bc.bounds.contains(mousePoint)) {
                 selectedEntity = entity;
                 clickedOnEntity = true;
                 System.out.println("Selected entity " + entity.getId());
             }
         }
 
-        // If clicked empty space and we have a selected entity → move to tile
         if (!clickedOnEntity && selectedEntity != null && tileMap != null) {
             MapConfig cfg = tileMap.getConfig();
             int ts = cfg.tileSize();
 
-            // Convert screen click → tile coordinates using current offsets
-            int tileX = (click.x + offsetXRef[0]) / ts;
-            int tileY = (click.y + offsetYRef[0]) / ts;
+            int tileX = (mousePoint.x + offsetXRef[0]) / ts;
+            int tileY = (mousePoint.y + offsetYRef[0]) / ts;
 
-            // Center soldier inside tile
             Sprite sprite = selectedEntity.getComponent(Sprite.class);
             Position pos = selectedEntity.getComponent(Position.class);
             BoundsComponent bc = selectedEntity.getComponent(BoundsComponent.class);
@@ -60,7 +57,18 @@ public class MouseInput extends MouseAdapter {
         }
     }
 
+    @Override
+    public void mouseMoved(MouseEvent e) {
+        mousePoint = e.getPoint(); // update hover point continuously
+    }
+
+    @Override
+    public void mouseDragged(MouseEvent e) {
+        mousePoint = e.getPoint();
+    }
+
     public Entity getSelectedEntity() { return selectedEntity; }
     public Position getMoveTarget() { return moveTarget; }
     public void clearMoveTarget() { moveTarget = null; }
+    public Point getMousePoint() { return mousePoint; } // <-- restore getter
 }
