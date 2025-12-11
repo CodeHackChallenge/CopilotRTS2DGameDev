@@ -5,39 +5,62 @@ import java.util.List;
 
 public class MouseInput extends MouseAdapter {
     private final List<Entity> entities;
-    private Entity selected;
+    private final TileMapComponent tileMap;
+    private final int offsetXRef[];
+    private final int offsetYRef[];
+
+    private Entity selectedEntity;
     private Position moveTarget;
 
-    // Hover
-    private Point mousePoint = new Point(0,0);
-
-    public MouseInput(List<Entity> entities) { this.entities = entities; }
-
-    @Override
-    public void mousePressed(MouseEvent e) {
-        mousePoint = e.getPoint();
-        boolean hit = false;
-        for (Entity entity : entities) {
-            BoundsComponent bc = entity.getComponent(BoundsComponent.class);
-            if (bc != null && bc.bounds.contains(mousePoint)) {
-                selected = entity;
-                hit = true;
-                System.out.println("Selected entity " + entity.getId());
-            }
-        }
-        if (!hit && selected != null) {
-            moveTarget = new Position(e.getX(), e.getY());
-            System.out.println("Move command to " + moveTarget.x + "," + moveTarget.y);
-        }
+    public MouseInput(List<Entity> entities, TileMapComponent tileMap,
+                      int[] offsetXRef, int[] offsetYRef) {
+        this.entities = entities;
+        this.tileMap = tileMap;
+        this.offsetXRef = offsetXRef; // pass array reference so we can read live offsets
+        this.offsetYRef = offsetYRef;
     }
 
     @Override
-    public void mouseMoved(MouseEvent e) { mousePoint = e.getPoint(); }
-    @Override
-    public void mouseDragged(MouseEvent e) { mousePoint = e.getPoint(); }
+    public void mousePressed(MouseEvent e) {
+        Point click = e.getPoint();
+        boolean clickedOnEntity = false;
 
-    public Entity getSelected() { return selected; }
+        // Check if clicked on an entity
+        for (Entity entity : entities) {
+            BoundsComponent bc = entity.getComponent(BoundsComponent.class);
+            if (bc != null && bc.bounds.contains(click)) {
+                selectedEntity = entity;
+                clickedOnEntity = true;
+                System.out.println("Selected entity " + entity.getId());
+            }
+        }
+
+        // If clicked empty space and we have a selected entity → move to tile
+        if (!clickedOnEntity && selectedEntity != null && tileMap != null) {
+            MapConfig cfg = tileMap.getConfig();
+            int ts = cfg.tileSize();
+
+            // Convert screen click → tile coordinates using current offsets
+            int tileX = (click.x + offsetXRef[0]) / ts;
+            int tileY = (click.y + offsetYRef[0]) / ts;
+
+            // Center soldier inside tile
+            Sprite sprite = selectedEntity.getComponent(Sprite.class);
+            Position pos = selectedEntity.getComponent(Position.class);
+            BoundsComponent bc = selectedEntity.getComponent(BoundsComponent.class);
+
+            if (sprite != null && pos != null && bc != null) {
+                int targetX = tileX * ts + (ts - sprite.width) / 2;
+                int targetY = tileY * ts + (ts - sprite.height) / 2;
+
+                moveTarget = new Position(targetX, targetY);
+                System.out.println("Move command to tile (" + tileX + "," + tileY +
+                                   ") → world (" + targetX + "," + targetY + ")");
+            }
+        }
+    }
+
+    public Entity getSelectedEntity() { return selectedEntity; }
     public Position getMoveTarget() { return moveTarget; }
     public void clearMoveTarget() { moveTarget = null; }
-    public Point getMousePoint() { return mousePoint; }
 }
