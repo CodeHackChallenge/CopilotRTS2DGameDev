@@ -6,8 +6,8 @@ import java.util.Map;
 
 /**
  * TextureManager caches all textures (tiles, sprites, UI).
- * Ensures each image is loaded once and reused everywhere.
  * Uses BufferedImage for guaranteed pixel access and performance.
+ * Supports preloading all known textures at startup.
  */
 public class TextureManager {
     private static TextureManager instance;
@@ -40,4 +40,25 @@ public class TextureManager {
             return null;
         }
     }
+
+    /**
+     * Preload all textures you know you’ll need.
+     * Call this once at game startup.
+     */
+    public void preloadAll() {
+        // Tiles
+        getTexture("/texture/grass.png");
+        getTexture("/texture/dirt.png");
+        getTexture("/texture/rock.png");
+        getTexture("/texture/water.png");
+
+        // Sprites
+        getTexture("/sprite/soldier.png");
+        getTexture("/sprite/building.png");
+
+        // UI (optional)
+        // getTexture("/ui/button.png");
+        // getTexture("/ui/icon.png");
+    }
 }
+
