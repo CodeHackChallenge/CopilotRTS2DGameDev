@@ -1,38 +1,42 @@
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.List;
+import java.io.InputStreamReader;
+import java.util.StringTokenizer;
 
 /**
  * TileMapLoader reads a text file from /resources/maps/
- * Each character in the file corresponds to a tile ID (0=grass, 1=dirt, 2=rock, 3=water).
- * It builds a TileMapComponent with those IDs.
- *
- * Rendering is handled separately by TileMapSystem, which maps IDs → textures.
+ * Each line contains space-separated tile IDs (e.g. "0 1 2 3").
+ * Builds a TileMapComponent with those IDs.
  */
 public class TileMapLoader {
 
-    /**
-     * Load a map file into a TileMapComponent.
-     * @param resourcePath path inside /resources/maps (e.g. "/maps/map.txt")
-     * @param config MapConfig describing width, height, tile size
-     * @return TileMapComponent with tile IDs populated
-     */
     public static TileMapComponent loadFromFile(String resourcePath, MapConfig config) throws IOException {
         TileMapComponent map = new TileMapComponent(config);
 
-        // Read all lines from the map file
-        List<String> lines = Files.readAllLines(Paths.get(TileMapLoader.class.getResource(resourcePath).toURI()));
+        try (BufferedReader reader = new BufferedReader(
+                new InputStreamReader(TileMapLoader.class.getResourceAsStream(resourcePath)))) {
 
-        for (int y = 0; y < config.heightTiles() && y < lines.size(); y++) {
-            String line = lines.get(y).trim();
-            for (int x = 0; x < config.widthTiles() && x < line.length(); x++) {
-                int id = Character.getNumericValue(line.charAt(x));
-                if (id < 0 || id > 9) id = 0; // default to grass if invalid
-                map.setTile(x, y, id);
+            String line;
+            int y = 0;
+            while ((line = reader.readLine()) != null && y < config.heightTiles()) {
+                StringTokenizer st = new StringTokenizer(line);
+                int x = 0;
+                while (st.hasMoreTokens() && x < config.widthTiles()) {
+                    String token = st.nextToken();
+                    int id;
+                    try {
+                        id = Integer.parseInt(token);
+                    } catch (NumberFormatException e) {
+                        id = 0; // default to grass if invalid
+                    }
+                    map.setTile(x, y, id);
+                    x++;
+                }
+                y++;
             }
         }
         return map;
     }
 }
+
 
