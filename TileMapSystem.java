@@ -1,38 +1,64 @@
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * TileMapSystem is responsible for rendering the tile map.
+ * Each tile ID (0=grass, 1=dirt, 2=rock, 3=water) maps to a BufferedImage texture.
+ * Textures are cached in TextureManager so they are only loaded once.
+ */
 public class TileMapSystem {
-    private final Map<Integer, Color> tileColors = new HashMap<>();
+    private final Map<Integer, BufferedImage> tileTextures = new HashMap<>();
 
     public TileMapSystem() {
-        tileColors.put(0, Color.GREEN);          // grass
-        tileColors.put(1, Color.ORANGE);         // dirt
-        tileColors.put(2, new Color(139,69,19)); // rock
-        tileColors.put(3, Color.BLUE);           // water
+        TextureManager tm = TextureManager.getInstance();
+
+        // Load and cache tile textures
+        tileTextures.put(0, tm.getTexture("/texture/grass.png"));
+        tileTextures.put(1, tm.getTexture("/texture/dirt.png"));
+        tileTextures.put(2, tm.getTexture("/texture/rock.png"));
+        tileTextures.put(3, tm.getTexture("/texture/water.png"));
     }
 
+    /**
+     * Render visible portion of the map.
+     * @param g Graphics2D context
+     * @param map TileMapComponent containing tile IDs
+     * @param offsetX viewport offset in X
+     * @param offsetY viewport offset in Y
+     */
     public void render(Graphics2D g, TileMapComponent map, int offsetX, int offsetY) {
         MapConfig cfg = map.getConfig();
         int ts = cfg.tileSize();
 
+        // Calculate visible tile range based on viewport
         int startTileX = Math.max(0, offsetX / ts);
         int startTileY = Math.max(0, offsetY / ts);
         int endTileX = Math.min(cfg.widthTiles() - 1, (offsetX + 728) / ts);
         int endTileY = Math.min(cfg.heightTiles() - 1, (offsetY + 728) / ts);
 
+        // Draw each visible tile
         for (int ty = startTileY; ty <= endTileY; ty++) {
             for (int tx = startTileX; tx <= endTileX; tx++) {
                 int id = map.getTile(tx, ty);
-                g.setColor(tileColors.getOrDefault(id, Color.GRAY));
+                BufferedImage texture = tileTextures.get(id);
 
                 int screenX = tx * ts - offsetX;
                 int screenY = ty * ts - offsetY;
-                g.fillRect(screenX, screenY, ts, ts);
+
+                if (texture != null) {
+                    // Draw tile texture scaled to tile size
+                    g.drawImage(texture, screenX, screenY, ts, ts, null);
+                }
             }
         }
     }
 
+    /**
+     * Render grid overlay for debug mode.
+     * This is unchanged, but still useful for visualizing tile boundaries.
+     */
     public void renderGrid(Graphics2D g, TileMapComponent map, int offsetX, int offsetY) {
         MapConfig cfg = map.getConfig();
         int ts = cfg.tileSize();
