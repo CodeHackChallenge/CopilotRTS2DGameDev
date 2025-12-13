@@ -7,10 +7,9 @@ import java.util.List;
 
 /**
  * Refactored GamePanel:
- * - Window size increased to 1200x720
- * - Uses TextureManager with one spritesheet
- * - Soldier entity uses SoldierAnimation (8 directions)
- * - Animations freeze when soldier stops, play when moving
+ * - Window size 1200x720
+ * - Uses SpritesheetManager for both tiles and soldiers
+ * - Soldier entity uses SoldierAnimation with 8 directions
  */
 public class GamePanel extends Canvas implements Runnable {
     private Thread thread;
@@ -25,28 +24,24 @@ public class GamePanel extends Canvas implements Runnable {
     private MouseInput mouseInput;
     private KeyInput keyInput;
 
-    // Viewport offsets
     private int offsetX = 0;
     private int offsetY = 0;
 
     public GamePanel() {
-        // Refactored: window size increased
         setPreferredSize(new Dimension(1200, 720));
         setBackground(Color.BLACK);
 
-        // Refactored: preload spritesheet once
-        TextureManager.getInstance(); // loads /resources/spritesheet.png
-
-        // Refactored: Soldier entity setup with SoldierAnimation
+        // Soldier entity setup with SoldierAnimation
         Entity soldier = new Entity(1);
         Position pos = new Position(64, 64);
 
-        // Build animations for all 8 directions
+        // Build animations for all 8 directions from soldier spritesheet
         EnumMap<Direction, Animation> soldierAnims = new EnumMap<>(Direction.class);
         for (int dirIndex = 0; dirIndex < 8; dirIndex++) {
-            BufferedImage[] frames = new BufferedImage[8]; // 8 frames per direction
+            BufferedImage[] frames = new BufferedImage[8];
             for (int i = 0; i < 8; i++) {
-                frames[i] = TextureManager.getInstance().getSubImage(i * 64, dirIndex * 64, 64, 64);
+                frames[i] = SpritesheetManager.getInstance()
+                        .getSubImage("/soldier_sheet.png", i * 64, dirIndex * 64, 64, 64);
             }
             soldierAnims.put(Direction.values()[dirIndex], new Animation(frames, 8));
         }
@@ -94,14 +89,12 @@ public class GamePanel extends Canvas implements Runnable {
     }
 
     private void update() {
-        // WASD panning
         int panSpeed = 8;
         if (keyInput.isLeft())  offsetX = Math.max(0, offsetX - panSpeed);
         if (keyInput.isRight()) offsetX = Math.min(tileMap.getConfig().widthTiles() * tileMap.getConfig().tileSize() - 1200, offsetX + panSpeed);
         if (keyInput.isUp())    offsetY = Math.max(0, offsetY - panSpeed);
         if (keyInput.isDown())  offsetY = Math.min(tileMap.getConfig().heightTiles() * tileMap.getConfig().tileSize() - 720, offsetY + panSpeed);
 
-        // Move selected entity toward target
         Entity selected = mouseInput.getSelectedEntity();
         Position target = mouseInput.getMoveTarget();
         if (selected != null && target != null && tileMap != null) {
@@ -113,7 +106,7 @@ public class GamePanel extends Canvas implements Runnable {
             }
         }
 
-        // Update animations (only those that are playing)
+        // Update animations
         for (Entity e : entities) {
             SoldierAnimation soldierAnim = e.getComponent(SoldierAnimation.class);
             if (soldierAnim != null) {
@@ -133,37 +126,13 @@ public class GamePanel extends Canvas implements Runnable {
         g.setColor(Color.BLACK);
         g.fillRect(0, 0, getWidth(), getHeight());
 
-        // Draw map
         if (tileMap != null) {
             tileMapSystem.render(g, tileMap, offsetX, offsetY);
         }
 
-        // Draw entities (RenderSystem supports SoldierAnimation)
         renderSystem.render(g, entities, offsetX, offsetY);
-
-        // Debug overlay
-        if (keyInput.isDebugOn() && tileMap != null) {
-            tileMapSystem.renderGrid(g, tileMap, offsetX, offsetY);
-
-            Point mp = mouseInput.getMousePoint();
-            MapConfig cfg = tileMap.getConfig();
-            int ts = cfg.tileSize();
-            int tileX = (mp.x + offsetX) / ts;
-            int tileY = (mp.y + offsetY) / ts;
-
-            if (tileX >= 0 && tileY >= 0 && tileX < cfg.widthTiles() && tileY < cfg.heightTiles()) {
-                boolean walk = tileMap.isWalkable(tileX, tileY);
-                g.setColor(walk ? Color.YELLOW : Color.RED);
-
-                int screenX = tileX * ts - offsetX;
-                int screenY = tileY * ts - offsetY;
-
-                g.drawRect(screenX, screenY, ts, ts);
-            }
-        }
 
         g.dispose();
         bs.show();
     }
 }
-
