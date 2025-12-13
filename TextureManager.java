@@ -1,19 +1,23 @@
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
- * TextureManager caches all textures (tiles, sprites, UI).
- * Uses BufferedImage for guaranteed pixel access and performance.
- * Supports preloading all known textures at startup.
+ * Refactored: Instead of loading separate textures,
+ * TextureManager now loads a single spritesheet and provides subimages.
  */
 public class TextureManager {
     private static TextureManager instance;
-    private final Map<String, BufferedImage> cache = new HashMap<>();
+    private BufferedImage spriteSheet;
 
-    private TextureManager() { }
+    private TextureManager() {
+        try {
+            // Load one big spritesheet from /resources/spritesheet.png
+            spriteSheet = ImageIO.read(getClass().getResource("/spritesheet.png"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     public static TextureManager getInstance() {
         if (instance == null) {
@@ -23,42 +27,14 @@ public class TextureManager {
     }
 
     /**
-     * Load or fetch a cached texture.
-     * @param resourcePath path inside /resources (e.g. "/texture/grass.png")
-     * @return BufferedImage texture
+     * Get a subimage from the spritesheet.
+     * @param x column index in spritesheet
+     * @param y row index in spritesheet
+     * @param w width of frame
+     * @param h height of frame
      */
-    public BufferedImage getTexture(String resourcePath) {
-        if (cache.containsKey(resourcePath)) {
-            return cache.get(resourcePath);
-        }
-        try {
-            BufferedImage img = ImageIO.read(getClass().getResource(resourcePath));
-            cache.put(resourcePath, img);
-            return img;
-        } catch (IOException | IllegalArgumentException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    /**
-     * Preload all textures you know you’ll need.
-     * Call this once at game startup.
-     */
-    public void preloadAll() {
-        // Tiles
-        getTexture("/texture/grass.png");
-        getTexture("/texture/dirt.png");
-        getTexture("/texture/rock.png");
-        getTexture("/texture/water.png");
-
-        // Sprites
-        getTexture("/sprite/soldier.png");
-        getTexture("/sprite/building.png");
-
-        // UI (optional)
-        // getTexture("/ui/button.png");
-        // getTexture("/ui/icon.png");
+    public BufferedImage getSubImage(int x, int y, int w, int h) {
+        return spriteSheet.getSubimage(x, y, w, h);
     }
 }
 
