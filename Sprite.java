@@ -1,25 +1,14 @@
 import java.awt.image.BufferedImage;
 
 /**
- * Sprite component represents an entity's visual appearance.
- * Instead of just a color, we now use a BufferedImage texture.
- * BufferedImage is chosen because:
- *   - It guarantees the image is fully loaded in memory.
- *   - It allows pixel-level access (getRGB/setRGB) for effects later.
- *   - It integrates seamlessly with Graphics2D.drawImage().
+ * Refactored: Sprite now stores a single frame from the spritesheet.
  */
 public class Sprite implements Component {
-    public BufferedImage image; // the texture for this sprite
-    public int width, height;   // dimensions to render
+    public BufferedImage image;
+    public int width, height;
 
-    /**
-     * Constructor loads the texture from the TextureManager cache.
-     * @param resourcePath path to the image inside /resources/sprite/
-     * @param width desired render width
-     * @param height desired render height
-     */
-    public Sprite(String resourcePath, int width, int height) {
-        this.image = TextureManager.getInstance().getTexture(resourcePath);
+    public Sprite(int sheetX, int sheetY, int width, int height) {
+        this.image = TextureManager.getInstance().getSubImage(sheetX, sheetY, width, height);
         this.width = width;
         this.height = height;
     }
