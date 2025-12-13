@@ -1,8 +1,17 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.List;
 
+/**
+ * Refactored GamePanel:
+ * - Window size increased to 1200x720
+ * - Uses TextureManager with one spritesheet
+ * - Soldier entity uses SoldierAnimation (8 directions)
+ * - Animations freeze when soldier stops, play when moving
+ */
 public class GamePanel extends Canvas implements Runnable {
     private Thread thread;
     private boolean running = false;
@@ -21,20 +30,36 @@ public class GamePanel extends Canvas implements Runnable {
     private int offsetY = 0;
 
     public GamePanel() {
-        setPreferredSize(new Dimension(728, 728));
+        // Refactored: window size increased
+        setPreferredSize(new Dimension(1200, 720));
         setBackground(Color.BLACK);
 
-        // Soldier entity
+        // Refactored: preload spritesheet once
+        TextureManager.getInstance(); // loads /resources/spritesheet.png
+
+        // Refactored: Soldier entity setup with SoldierAnimation
         Entity soldier = new Entity(1);
-        Position pos = new Position(64, 64); // starting pixel position
-        Sprite sprite = new Sprite(Color.WHITE, 64, 64);
-        BoundsComponent bounds = new BoundsComponent(pos.x, pos.y, sprite.width, sprite.height);
+        Position pos = new Position(64, 64);
+
+        // Build animations for all 8 directions
+        EnumMap<Direction, Animation> soldierAnims = new EnumMap<>(Direction.class);
+        for (int dirIndex = 0; dirIndex < 8; dirIndex++) {
+            BufferedImage[] frames = new BufferedImage[8]; // 8 frames per direction
+            for (int i = 0; i < 8; i++) {
+                frames[i] = TextureManager.getInstance().getSubImage(i * 64, dirIndex * 64, 64, 64);
+            }
+            soldierAnims.put(Direction.values()[dirIndex], new Animation(frames, 8));
+        }
+
+        SoldierAnimation soldierAnim = new SoldierAnimation(soldierAnims);
+        BoundsComponent bounds = new BoundsComponent(pos.x, pos.y, 64, 64);
+
         soldier.addComponent(pos);
-        soldier.addComponent(sprite);
         soldier.addComponent(bounds);
+        soldier.addComponent(soldierAnim);
         entities.add(soldier);
 
-        // Input
+        // Input setup
         mouseInput = new MouseInput(entities);
         addMouseListener(mouseInput);
         addMouseMotionListener(mouseInput);
@@ -44,10 +69,10 @@ public class GamePanel extends Canvas implements Runnable {
         setFocusable(true);
         requestFocus();
 
-        // Load map
+        // Load map (space-separated IDs)
         try {
             MapConfig cfg = MapConfig.defaultConfig();
-            tileMap = TileMapLoader.loadFromFile("map.txt", cfg);
+            tileMap = TileMapLoader.loadFromFile("/maps/map.txt", cfg);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -72,21 +97,27 @@ public class GamePanel extends Canvas implements Runnable {
         // WASD panning
         int panSpeed = 8;
         if (keyInput.isLeft())  offsetX = Math.max(0, offsetX - panSpeed);
-        if (keyInput.isRight()) offsetX = Math.min(tileMap.getConfig().widthTiles() * tileMap.getConfig().tileSize() - 728, offsetX + panSpeed);
+        if (keyInput.isRight()) offsetX = Math.min(tileMap.getConfig().widthTiles() * tileMap.getConfig().tileSize() - 1200, offsetX + panSpeed);
         if (keyInput.isUp())    offsetY = Math.max(0, offsetY - panSpeed);
-        if (keyInput.isDown())  offsetY = Math.min(tileMap.getConfig().heightTiles() * tileMap.getConfig().tileSize() - 728, offsetY + panSpeed);
+        if (keyInput.isDown())  offsetY = Math.min(tileMap.getConfig().heightTiles() * tileMap.getConfig().tileSize() - 720, offsetY + panSpeed);
 
         // Move selected entity toward target
         Entity selected = mouseInput.getSelectedEntity();
         Position target = mouseInput.getMoveTarget();
         if (selected != null && target != null && tileMap != null) {
-            // Convert screen target → world target
-            Position worldTarget = new Position(target.x + offsetX, target.y + offsetY);
-            movementSystem.moveTowards(selected, worldTarget, tileMap);
+            movementSystem.moveTowards(selected, target, tileMap);
 
             Position pos = selected.getComponent(Position.class);
-            if (pos.x == worldTarget.x && pos.y == worldTarget.y) {
+            if (pos.x == target.x && pos.y == target.y) {
                 mouseInput.clearMoveTarget();
+            }
+        }
+
+        // Update animations (only those that are playing)
+        for (Entity e : entities) {
+            SoldierAnimation soldierAnim = e.getComponent(SoldierAnimation.class);
+            if (soldierAnim != null) {
+                soldierAnim.getCurrentAnimation().update();
             }
         }
     }
@@ -107,7 +138,7 @@ public class GamePanel extends Canvas implements Runnable {
             tileMapSystem.render(g, tileMap, offsetX, offsetY);
         }
 
-        // Draw entities
+        // Draw entities (RenderSystem supports SoldierAnimation)
         renderSystem.render(g, entities, offsetX, offsetY);
 
         // Debug overlay
@@ -127,10 +158,7 @@ public class GamePanel extends Canvas implements Runnable {
                 int screenX = tileX * ts - offsetX;
                 int screenY = tileY * ts - offsetY;
 
-                g.drawLine(screenX, screenY, screenX + ts, screenY);             // top
-                g.drawLine(screenX, screenY + ts, screenX + ts, screenY + ts);   // bottom
-                g.drawLine(screenX, screenY, screenX, screenY + ts);             // left
-                g.drawLine(screenX + ts, screenY, screenX + ts, screenY + ts);   // right
+                g.drawRect(screenX, screenY, ts, ts);
             }
         }
 
@@ -138,3 +166,4 @@ public class GamePanel extends Canvas implements Runnable {
         bs.show();
     }
 }
+
