@@ -3,41 +3,37 @@ import java.awt.image.BufferedImage;
 import java.util.List;
 
 /**
- * RenderSystem is responsible for drawing all entities on screen.
- * Each entity has a Position (world coordinates) and a Sprite (texture).
- * We now use BufferedImage for sprites instead of solid colors.
+ * Refactored RenderSystem:
+ * - Checks for SoldierAnimation first
+ * - Falls back to static Sprite if no animation
+ * - Uses Position + offset for correct screen placement
  */
 public class RenderSystem {
 
-    /**
-     * Render all entities relative to the current viewport offset.
-     * @param g Graphics2D context
-     * @param entities list of entities to render
-     * @param offsetX horizontal camera offset
-     * @param offsetY vertical camera offset
-     */
     public void render(Graphics2D g, List<Entity> entities, int offsetX, int offsetY) {
         for (Entity e : entities) {
             Position pos = e.getComponent(Position.class);
-            Sprite sprite = e.getComponent(Sprite.class);
+            if (pos == null) continue;
 
-            // Skip entities without position or sprite
-            if (pos == null || sprite == null || sprite.image == null) continue;
+            int screenX = (int) (pos.x - offsetX);
+            int screenY = (int) (pos.y - offsetY);
 
-            // Convert world coordinates → screen coordinates
-            int screenX = pos.x - offsetX;
-            int screenY = pos.y - offsetY;
-
-            // Cull entities outside the viewport (728x728 window)
-            if (screenX + sprite.width < 0 || screenY + sprite.height < 0 ||
-                screenX > 728 || screenY > 728) {
-                continue;
+            // Refactored: soldier animation rendering
+            SoldierAnimation soldierAnim = e.getComponent(SoldierAnimation.class);
+            if (soldierAnim != null) {
+                BufferedImage frame = soldierAnim.getCurrentAnimation().getCurrentFrame();
+                g.drawImage(frame, screenX, screenY, null);
+                continue; // skip static sprite if animation exists
             }
 
-            // Draw the sprite texture at the correct position and size
-            BufferedImage texture = sprite.image;
-            g.drawImage(texture, screenX, screenY, sprite.width, sprite.height, null);
+            // Fallback: static sprite rendering
+            Sprite sprite = e.getComponent(Sprite.class);
+            if (sprite != null && sprite.image != null) {
+                g.drawImage(sprite.image, screenX, screenY, sprite.width, sprite.height, null);
+            }
         }
     }
 }
+
+
 
