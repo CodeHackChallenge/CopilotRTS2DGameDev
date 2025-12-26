@@ -1,41 +1,57 @@
+package demo.main;
+
 import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.image.BufferStrategy;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
+import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
  
-
+/**
+ * For iPhone pixel art games, use a base resolution like 320x180 or 640x360 (16:9) as your core canvas, 
+ * then scale it up (2x, 3x, 4x) to fit various Retina displays (like 1170x2532 or 1290x2796 points), 
+ * leveraging Java's scaling capabilities to handle different densities while maintaining sharp pixel art  
+ * by designing for a consistent "point" size or integer scaling. 
+ */
 public class Engine extends Canvas implements Runnable {
 
+	public static final int CLASS_WARRIOR = 0, CLASS_SORCERER = 1;
+	public static final int RANK_1STAR = 0;
+	
+	public static final int SPRITE_SIZE = 64;
 	
 	public static final int UPS = 200;
 	public static final int FPS = 120;//120;
-	 
+	private static final int SCALE = 2; 
 	private JFrame window;
 	private JPanel panel;
 	private BufferStrategy buffereStrategy;
 	
-	private final String title ="RTS with Copilot dev v.1"; 
+	private final String title ="Grid Battle Demo v.1"; 
 	private	boolean isRunning = true; 
 	
-	public static final int WIDTH = 1200; 
-	public static final int	HEIGHT = 720; 
+	public static final int WIDTH = 640 * SCALE; 
+	public static final int	HEIGHT = 360 * SCALE; 
 	
-	private Thread thread;
-	private GameHandler handler;
-	private MouseInput mouseInput;
-    private KeyInput keyInput;   
-	//private long targetTime = 1000 / FPS;
-	     
-//	//Class Objects 
-//	private Game game = new Game();
-// 	private RenderSystem render = new RenderSystem(game);
-// 	private UpdateSystem update = new UpdateSystem(game);
- 	
+	private Thread thread;  
+ 	//
+	private List<Entity> entities;
+	private RenderSystem renderSystem;
+	private CombatSystem combatSystem; 
+	private DamageTextSystem damageTextSystem;
+	
+	public static BufferedImage hitImage;
+
 	public Engine(){
+		 
 		window = new JFrame(title);
 		panel = (JPanel) window.getContentPane();
 		//panel.setPreferredSize(new Dimension(WIDTH*SCALE, HEIGHT*SCALE));
@@ -53,44 +69,125 @@ public class Engine extends Canvas implements Runnable {
 		window.setLocationRelativeTo(null);
 		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
-		keyInput = new KeyInput();
-		mouseInput = new MouseInput(this);
-		handler = new GameHandler(mouseInput, keyInput);
-		       
+//		addMouseListener(mouseInput);
+//      addMouseMotionListener(mouseInput);
+//		addKeyListener(keyInput);
 		
-		addMouseListener(mouseInput);
-        addMouseMotionListener(mouseInput);
-		addKeyListener(keyInput);
 		requestFocus();
 		
 		createBufferStrategy(2);
 		buffereStrategy = getBufferStrategy();
+		
+		//
+		gameSetup();
 				
 	}   
 	 
-	public void update(double dt){ //how to use dt here?
-		 	  
-		handler.update();
+	private void gameSetup() {
+		try { hitImage = ImageIO.read(getClass().getResource("/sprite/hit_64x64.png"));} 
+		catch (IOException e) { e.printStackTrace();}
 		
+		entities = new ArrayList<>();
+		renderSystem = new RenderSystem();
+		combatSystem = new CombatSystem();
+		damageTextSystem = new DamageTextSystem();
+		
+		Entity warrior = new Entity("Warrior");
+		warrior.addComponent(new Sprite(Color.WHITE, 16, 32));
+		warrior.addComponent(new Position(18 * 32,  12 * 32));
+		warrior.addComponent(new Health(100));
+		warrior.addComponent(new Attack(1, 9, 64, 0.2));
+		warrior.addComponent(new Faction(Faction.Type.HERO));
+		warrior.addComponent(new EntityAnimation("/sprite/enemy2_64x64.png", 13));
+		warrior.addComponent(new Accuracy(0.9f)); // 0.3 - 1.0
+		warrior.addComponent(new Evasion(0.2f)); // 0.0 - 0.5
+		warrior.addComponent(new Defense(1, 4));
+		warrior.addComponent(new GodMode(GodMode.Mode.REGEN));
+		warrior.addComponent(new CriticalHit(0.20f, 2.0f)); //20% chance, double damage
+		warrior.addComponent(new Mana(100)); 
+		
+		Entity sorc = new Entity("Sorcerer");
+		sorc.addComponent(new Sprite(Color.WHITE, 16, 32));
+		sorc.addComponent(new Position(20 * 32,  12 * 32));
+		sorc.addComponent(new Health(100));
+		sorc.addComponent(new Attack(1, 9, 64, 0.2));
+		sorc.addComponent(new Faction(Faction.Type.ENEMY));
+		sorc.addComponent(new EntityAnimation("/sprite/enemy_64x64.png", 13));
+		sorc.addComponent(new Accuracy(0.9f));
+		sorc.addComponent(new Evasion(0.2f));
+		sorc.addComponent(new Defense(1, 4));
+		sorc.addComponent(new GodMode(GodMode.Mode.REGEN));
+		sorc.addComponent(new CriticalHit(0.20f, 2.0f)); //20% chance, double damage
+		sorc.addComponent(new Mana(100)); 
+		
+		Entity sorc2 = new Entity("Archer");
+		sorc2.addComponent(new Sprite(Color.WHITE, 16, 32));
+		sorc2.addComponent(new Position(20 * 31,  12 * 31));
+		sorc2.addComponent(new Health(100));
+		sorc2.addComponent(new Attack(1, 25, 64, 1.0));
+		sorc2.addComponent(new Faction(Faction.Type.ENEMY));
+		sorc2.addComponent(new EntityAnimation("/sprite/enemy_64x64.png", 13));
+		sorc2.addComponent(new Accuracy(0.9f));
+		sorc2.addComponent(new Evasion(0.2f));
+		sorc2.addComponent(new Defense(1, 4));
+		sorc2.addComponent(new GodMode(GodMode.Mode.REGEN));
+		sorc2.addComponent(new CriticalHit(0.20f, 2.0f)); //20% chance, double damage
+		sorc2.addComponent(new Mana(100)); 
+		
+		entities.add(warrior);
+		entities.add(sorc);
+		entities.add(sorc2);
+//		Attack atk = entities.get(0).getComponent(Attack.class);
+//		Attack atk1 = entities.get(1).getComponent(Attack.class);
+//		atk.isInCombat(true);
+//		atk1.isInCombat(true);
+//		atk.setAtkSpeed(0.8);
 	}
+
+	public void update(){  
+		
+		for (Entity e : entities) {
+            EntityAnimation animation = e.getComponent(EntityAnimation.class);
+            if (animation != null) {   
+            	animation.setAnimation();
+            }
+        }
+		
+		combatSystem.update(entities); 
+		damageTextSystem.update(entities, 0.005f);
+	}
+	
 	public void render(){
 		Graphics2D graphics2D = (Graphics2D) buffereStrategy.getDrawGraphics();
 		graphics2D.setColor(Color.GRAY);
 		graphics2D.fillRect(0, 0, WIDTH, HEIGHT);
 		/***************draw here******************************/ 
-		 
-		handler.render(graphics2D);
+		  
+		///grid
+		graphics2D.setColor(new Color(255, 255, 255, 80));
+ 
+		for (int y = 0; y < HEIGHT; y += SPRITE_SIZE) {
+			
+        	graphics2D.drawLine(0 , y, WIDTH,  y);
+        }
+		for (int x = 0; x < WIDTH; x += SPRITE_SIZE) {
+			
+        	graphics2D.drawLine(x , 0, x, HEIGHT);
+        }
+		  
+		
+		renderSystem.render(graphics2D, entities);
+		
+		
+		
+		
+		
 		
 		/********************end*************************/
 		graphics2D.dispose();
 		buffereStrategy.show();
 		
-	}
-	
-	public void tick(){}
-	
-	private final double UPDATE_RATE = 120.0;
-	private final double NS_PER_UPDATE = 1_000_000_000.0 / UPDATE_RATE; //120fps
+	} 
 	
 	public void run() {		 
 		double timePerFrame = 1000000000.0 / FPS;
@@ -111,14 +208,13 @@ public class Engine extends Canvas implements Runnable {
 			previousTime = currentTime;
 			
 			if(deltaU >= 1) {
-				update(NS_PER_UPDATE / 1_000_000_000.0);
+				update();
 
 				updates++;
 				deltaU--;
 			}
 			
-			if(deltaF >= 1) {
-				//gameTime += (double) 1 / FPS;
+			if(deltaF >= 1) { 
 				render();
 				
 				frames++;
@@ -129,7 +225,7 @@ public class Engine extends Canvas implements Runnable {
 			 if(System.currentTimeMillis() - lastCheck >= 1000) {
 				 lastCheck = System.currentTimeMillis();
 				 
-				 System.out.println("FPS:"+frames+" | UPS:"+updates);
+				 //System.out.println("FPS:"+frames+" | UPS:"+updates);
 				 frames = 0;
 				 updates = 0;
 			 }
@@ -160,4 +256,3 @@ public class Engine extends Canvas implements Runnable {
 	} 
 	 
 }
-

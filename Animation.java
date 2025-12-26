@@ -1,16 +1,13 @@
-import java.awt.image.BufferedImage;
+package demo.main;
 
-/**
- * Refactored: Animation now supports freezing at a standing frame
- * when the entity stops moving, and resuming when moving.
- */
+import java.awt.image.BufferedImage;
+ 
 public class Animation {
     private BufferedImage[] frames;
     private int currentFrame;
     private int frameCount;
     private int frameDelay;
-    private int tick;
-    private boolean playing = true; // NEW: controls whether animation advances
+    private int tick; 
 
     public Animation(BufferedImage[] frames, int frameDelay) {
         this.frames = frames;
@@ -20,10 +17,9 @@ public class Animation {
         this.tick = 0;
     }
 
-    public void update() { 
-        if (!playing) return; // NEW: freeze animation when not playing
-        tick++; 
-        if (tick >= frameDelay) {
+    public void update() {  
+        tick++;
+        if (tick >= frameDelay) {  
             tick = 0; 
             currentFrame = (currentFrame + 1) % frameCount;  
         }
@@ -31,16 +27,5 @@ public class Animation {
 
     public BufferedImage getCurrentFrame() {
         return frames[currentFrame];
-    }
-
-    // NEW: freeze at standing frame (default = frame 0)
-    public void freezeStanding() {
-        playing = false;
-        currentFrame = 0;
-    }
-
-    // NEW: resume animation when moving
-    public void play() {
-        playing = true;
-    }
+    } 
 }

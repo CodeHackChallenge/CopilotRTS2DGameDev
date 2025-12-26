@@ -1,14 +1,11 @@
+package demo.main;
+
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-
-/**
- * Refactored: Unified manager for multiple spritesheets.
- * - Caches each spritesheet by resource path
- * - Provides subimages for tiles, soldiers, or any entity
- */
+ 
 public class SpritesheetManager {
     private static SpritesheetManager instance;
     private final Map<String, BufferedImage> sheets = new HashMap<>();
