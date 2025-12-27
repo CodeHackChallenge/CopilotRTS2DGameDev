@@ -1,236 +1,134 @@
-import java.util.ArrayList;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics2D; 
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
-
-public class CombatSystem {
-
-    public void update(List<Entity> entities,
-                       float delta,
-                       List<HitDetectionSystem.HitEvent> hits) {
-
-        List<Entity> toRemove = new ArrayList<>();
-        List<Entity> toAdd = new ArrayList<>();
-
-        // ---------------------------------------------------------
-        // 1. Handle cooldowns and target selection
-        // ---------------------------------------------------------
-        for (Entity attacker : entities) {
-
-            Health ah = attacker.getComponent(Health.class);
-            if (ah == null || ah.current <= 0) continue;
-
-            Attack atk = attacker.getComponent(Attack.class);
-            Faction af = attacker.getComponent(Faction.class);
-            Accuracy acc = attacker.getComponent(Accuracy.class);
-            Position ap = attacker.getComponent(Position.class);
-
-            if (atk == null || af == null || acc == null || ap == null)
-                continue;
-
-            // ---------------------------------------------------------
-            // CurrentTarget component (keep your system)
-            // ---------------------------------------------------------
-            CurrentTarget ct = attacker.getComponent(CurrentTarget.class);
-            if (ct == null) {
-                ct = new CurrentTarget(null);
-                attacker.addComponent(ct);
-            }
-
-            // Validate current target
-            if (ct.target != null) {
-                Health th = ct.target.getComponent(Health.class);
-                if (th == null || th.current <= 0) {
-                    ct.target = null;
-                }
-            }
-
-            // Acquire new target if needed
-            if (ct.target == null) {
-                ct.target = findClosestEnemy(attacker, entities, atk.range);
-            }
-
-            // No target found
-            if (ct.target == null) continue;
-
-            // ---------------------------------------------------------
-            // Attack cooldown
-            // ---------------------------------------------------------
-            AttackCoolDown acd = attacker.getComponent(AttackCoolDown.class);
-            if (acd == null) {
-                acd = new AttackCoolDown(1f);
-                attacker.addComponent(acd);
-            }
-
-            acd.cooldown -= delta;
-            if (acd.cooldown > 0f) continue;
-
-            acd.cooldown = 1f / acd.attackSpeed;
-
-            // ---------------------------------------------------------
-            // 2. Check collision hits for this attacker
-            // ---------------------------------------------------------
-            for (HitDetectionSystem.HitEvent event : hits) {
-
-                if (event.attacker != attacker) continue;
-
-                // Only attack the current target
-                if (event.target != ct.target) continue;
-
-                attackTarget(attacker, ct.target, toRemove, toAdd);
-            }
-        }
-
-        // ---------------------------------------------------------
-        // 3. Apply entity removal and additions
-        // ---------------------------------------------------------
-        entities.addAll(toAdd);
-        entities.removeAll(toRemove);
+ 
+ 
+public class RenderSystem { 
+	 
+	
+    public void render(Graphics2D graphics2D, List<Entity> entities) { 
+    	
+    	for(Entity e : entities) {
+			Position pos = e.getComponent(Position.class);
+			
+			if(pos == null) continue;
+			 
+			EntityAnimation anim = e.getComponent(EntityAnimation.class);
+			Sprite sprite = e.getComponent(Sprite.class); 
+			
+			//animation
+			if(anim != null) {
+				Animation a = anim.getAnimation(); 
+				if(a != null) {
+					graphics2D.drawImage(a.getCurrentFrame(), (int)pos.x, (int)pos.y, null);
+				} 
+				 
+	         } else if(sprite != null) {
+	        	 graphics2D.setColor(sprite.color);
+	        	 graphics2D.fillRect((int) pos.x, (int) pos.y, sprite.width, sprite.height);
+	         } 
+			 		
+			//-------------------------------------------------------------------
+			// HP and MP
+			//-------------------------------------------------------------------	 
+			Health hp = e.getComponent(Health.class);
+			if(hp != null) {
+				
+				float pct =  hp.getDisplayedPrecent();   
+				
+				int barWidth = 44;
+				int barHeight = 6;
+				 
+				int screenX = (int) pos.x + 10; 
+				int screenY = (int) pos.y - 6;
+				
+				//-------------------------------------------------------------------
+				// lerp color
+				//-------------------------------------------------------------------	 
+				Color green = Color.GREEN;
+				Color orange = Color.ORANGE;
+				Color red = Color.RED;
+				
+				Color barColor;
+				if(pct > 0.5f) {					
+					//barColor = Color.GREEN;
+					//green - orange
+					float t = (pct - 0.5f) / 0.5f; // 1 - 0
+					barColor = lerpColor(orange, green, t);
+				} else if(pct > 0.25f) {
+					//barColor = Color.ORANGE;
+					//orange - red
+					float t = (pct - 0.25f) / 0.25f;  
+					barColor = lerpColor(red, orange, t);
+				} else {
+					barColor = Color.RED;
+				}
+				//prevent disappearing bar
+				int filled = (int) (barWidth * pct);
+				if(hp.current > 0) {
+					filled = Math.max(1, filled);
+				}
+				
+				graphics2D.setColor(barColor);
+				graphics2D.fillRect(screenX, screenY, filled, barHeight);
+				
+			} 
+			
+			//-------------------------------------------------------------------
+			// damage Event
+			//-------------------------------------------------------------------	 
+			RenderTextComponent rtc = e.getComponent(RenderTextComponent.class);
+			DamageTextComponent dt = e.getComponent(DamageTextComponent.class); 
+			if(rtc != null && dt != null && pos != null) {  
+				int baseX = (int) (pos.x + dt.offsetX);
+				int baseY = (int) (pos.y + dt.offsetY); 
+				
+				int alpha = (int)(dt.alpha * 255);
+				alpha = Math.max(0, Math.min(255, alpha));
+				//shadow
+				Color shawdowColor = new Color(0, 0, 0, alpha);
+				//main color
+				Color mainColor = new Color(rtc.color.getRed(),
+										rtc.color.getGreen(),
+										rtc.color.getBlue(),
+										alpha						
+				);
+				//prepare scaled drawing
+				Graphics2D gText = (Graphics2D) graphics2D.create();
+				//apply scaling for crit 
+				gText.translate(baseX, baseY);
+				gText.scale(dt.scale, dt.scale);
+				
+				if(!dt.isCrit) {
+					//shadow
+					gText.setColor(shawdowColor); 
+					gText.drawString(dt.text, 
+							              rtc.shadowOffsetX, 
+							              rtc.shadowOffsetY 
+					);
+				}  
+				
+				gText.setColor(mainColor);
+				gText.setFont(new Font("Arial", Font.BOLD, rtc.size));		 
+				gText.drawString(dt.text, 0, 0);
+				
+				gText.dispose();
+			} 
+			 
+				
+		} 
+    	 
     }
 
-    // -------------------------------------------------------------
-    // Your original findClosestEnemy (unchanged)
-    // -------------------------------------------------------------
-    private Entity findClosestEnemy(Entity attacker, List<Entity> entities, int range) {
-        Position ap = attacker.getComponent(Position.class);
-        Faction af = attacker.getComponent(Faction.class);
-
-        Entity closest = null;
-        double closestDist = Double.MAX_VALUE;
-
-        for (Entity target : entities) {
-            if (attacker == target) continue;
-
-            Faction tf = target.getComponent(Faction.class);
-            Health th = target.getComponent(Health.class);
-            Position tp = target.getComponent(Position.class);
-
-            if (tf == null || th == null || tp == null) continue;
-            if (tf.type == af.type) continue;
-
-            int dx = (int) (tp.x - ap.x);
-            int dy = (int) (tp.y - ap.y);
-            double dist = Math.sqrt(dx * dx + dy * dy);
-
-            if (dist <= range && dist < closestDist) {
-                closestDist = dist;
-                closest = target;
-            }
-        }
-        return closest;
+    private Color lerpColor(Color a, Color b, float t ) {
+    	t = Math.max(0f, Math.min(1f, t));
+    	int r = (int)(a.getRed() + (b.getRed() - a.getRed()) * t);
+    	int g = (int)(a.getGreen() + (b.getGreen() - a.getGreen()) * t);
+    	int bc = (int)(a.getBlue() + (b.getBlue() - a.getBlue()) * t);
+    	
+    	return new Color(r, g, bc);    	
     }
-
-    // -------------------------------------------------------------
-    // Your original attackTarget, cleaned and collision‑ready
-    // -------------------------------------------------------------
-    private void attackTarget(Entity attacker,
-                              Entity target,
-                              List<Entity> toRemove,
-                              List<Entity> toAdd) {
-
-        Attack atk = attacker.getComponent(Attack.class);
-        Accuracy acc = attacker.getComponent(Accuracy.class);
-
-        Health th = target.getComponent(Health.class);
-        Evasion ev = target.getComponent(Evasion.class);
-        Defense def = target.getComponent(Defense.class);
-
-        if (th == null || ev == null || def == null) return;
-
-        // ---------------------------------------------------------
-        // HIT CHANCE
-        // ---------------------------------------------------------
-        float hitChance = acc.value - ev.value;
-        hitChance = Math.max(0f, Math.min(1f, hitChance));
-
-        float roll = ThreadLocalRandom.current().nextFloat();
-
-        if (roll > hitChance) {
-            spawnDamageText(target, "miss", toAdd, false);
-            return;
-        }
-
-        // ---------------------------------------------------------
-        // DAMAGE
-        // ---------------------------------------------------------
-        int rawDamage = random(atk.min, atk.max);
-        int defense = random(def.min, def.max);
-
-        int finalDamage = rawDamage - defense;
-        if (finalDamage <= 0) finalDamage = 1;
-
-        // ---------------------------------------------------------
-        // CRITICAL HIT
-        // ---------------------------------------------------------
-        boolean isCrit = false;
-        CriticalHit ch = attacker.getComponent(CriticalHit.class);
-
-        if (ch != null) {
-            float critRoll = ThreadLocalRandom.current().nextFloat();
-            if (critRoll < ch.critChance) {
-                isCrit = true;
-                finalDamage = Math.round(finalDamage * ch.critMultiplier);
-            }
-        }
-
-        // ---------------------------------------------------------
-        // APPLY DAMAGE
-        // ---------------------------------------------------------
-        th.damage(finalDamage);
-
-        spawnDamageText(target, String.valueOf(finalDamage), toAdd, isCrit);
-
-        // ---------------------------------------------------------
-        // DEATH HANDLING
-        // ---------------------------------------------------------
-        if (th.current <= 0) {
-            GodMode gm = target.getComponent(GodMode.class);
-            if (gm != null) {
-                gm.activate(target);
-            } else {
-                toRemove.add(target);
-            }
-        }
-    }
-
-    // -------------------------------------------------------------
-    // Your original damage text spawner (unchanged)
-    // -------------------------------------------------------------
-    private void spawnDamageText(Entity target,
-                                 String text,
-                                 List<Entity> toAdd,
-                                 boolean isCrit) {
-
-        Position tp = target.getComponent(Position.class);
-
-        int w = 32;
-        int h = 32;
-
-        int offsetX = ThreadLocalRandom.current().nextInt(0, w);
-        int offsetY = ThreadLocalRandom.current().nextInt(0, h);
-
-        Entity textEntity = new Entity();
-        textEntity.addComponent(new Position(tp.x, tp.y));
-
-        RenderTextComponent rtc =
-                isCrit ? new RenderTextComponent(Color.ORANGE, 18)
-                       : new RenderTextComponent(Color.WHITE, 14);
-
-        textEntity.addComponent(rtc);
-
-        DamageTextComponent dt = new DamageTextComponent(text, offsetX, offsetY);
-
-        if (isCrit) {
-            dt.isCrit = true;
-            dt.scale = 1.4f;
-            dt.shakeIntensity = 4f;
-            dt.shakeTime = 0.15f;
-        }
-
-        textEntity.addComponent(dt);
-        toAdd.add(textEntity);
-    }
-
-    private int random(int min, int max) {
-        return ThreadLocalRandom.current().nextInt(min, max + 1);
-    }
+	
+    
 }
