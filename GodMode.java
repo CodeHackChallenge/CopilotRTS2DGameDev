@@ -17,8 +17,8 @@ public class  GodMode implements Component {
 		
 		case REGEN: 
 			Health h = target.getComponent(Health.class);
-			h.health = h.restoreHP;
-			System.out.println("GodMode -> HP restored: "+ h.health);
+			h.heal(h.max);
+			System.out.println("GodMode -> HP restored: "+ h.current);
 			break;
 		case DEFENSE: 
 			break;

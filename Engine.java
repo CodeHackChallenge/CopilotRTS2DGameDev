@@ -47,6 +47,7 @@ public class Engine extends Canvas implements Runnable {
 	private RenderSystem renderSystem;
 	private CombatSystem combatSystem; 
 	private DamageTextSystem damageTextSystem;
+	private HealthBarSystem healthBarSystem;
 	
 	public static BufferedImage hitImage;
 
@@ -91,12 +92,13 @@ public class Engine extends Canvas implements Runnable {
 		renderSystem = new RenderSystem();
 		combatSystem = new CombatSystem();
 		damageTextSystem = new DamageTextSystem();
+		healthBarSystem = new HealthBarSystem();
 		
 		Entity warrior = new Entity("Warrior");
 		warrior.addComponent(new Sprite(Color.WHITE, 16, 32));
 		warrior.addComponent(new Position(18 * 32,  12 * 32));
 		warrior.addComponent(new Health(100));
-		warrior.addComponent(new Attack(1, 9, 64, 0.2));
+		warrior.addComponent(new Attack(1, 25, 64, 0.2));
 		warrior.addComponent(new Faction(Faction.Type.HERO));
 		warrior.addComponent(new EntityAnimation("/sprite/enemy2_64x64.png", 13));
 		warrior.addComponent(new Accuracy(0.9f)); // 0.3 - 1.0
@@ -110,7 +112,7 @@ public class Engine extends Canvas implements Runnable {
 		sorc.addComponent(new Sprite(Color.WHITE, 16, 32));
 		sorc.addComponent(new Position(20 * 32,  12 * 32));
 		sorc.addComponent(new Health(100));
-		sorc.addComponent(new Attack(1, 9, 64, 0.2));
+		sorc.addComponent(new Attack(1, 25, 64, 0.2));
 		sorc.addComponent(new Faction(Faction.Type.ENEMY));
 		sorc.addComponent(new EntityAnimation("/sprite/enemy_64x64.png", 13));
 		sorc.addComponent(new Accuracy(0.9f));
@@ -135,13 +137,12 @@ public class Engine extends Canvas implements Runnable {
 		sorc2.addComponent(new Mana(100)); 
 		
 		entities.add(warrior);
-		entities.add(sorc);
+		//entities.add(sorc);
 		entities.add(sorc2);
-//		Attack atk = entities.get(0).getComponent(Attack.class);
-//		Attack atk1 = entities.get(1).getComponent(Attack.class);
-//		atk.isInCombat(true);
-//		atk1.isInCombat(true);
-//		atk.setAtkSpeed(0.8);
+ 
+		
+		
+		
 	}
 
 	public void update(){  
@@ -154,7 +155,9 @@ public class Engine extends Canvas implements Runnable {
         }
 		
 		combatSystem.update(entities); 
+		healthBarSystem.update(entities, 0.005f);
 		damageTextSystem.update(entities, 0.005f);
+		
 	}
 	
 	public void render(){

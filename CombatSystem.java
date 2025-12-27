@@ -8,7 +8,7 @@ import java.util.concurrent.ThreadLocalRandom;
 public class CombatSystem {
  
 	//private static final ThreadLocalRandom RNG = ThreadLocalRandom.current();
-	private double removeCounter = 0;
+	//private double removeCounter = 0;
 	public void update(List<Entity> entities) {
 		List<Entity> toRemove = new ArrayList<>();
 		List<Entity> toAdd = new ArrayList<>();
@@ -17,7 +17,7 @@ public class CombatSystem {
 
 			Health ah = attacker.getComponent(Health.class);
 			
-			if(ah == null || ah.getHealth() <= 0) {continue;}
+			if(ah == null || ah.current <= 0) {continue;}
 			
 			Attack atk = attacker.getComponent(Attack.class);
 			Faction af = attacker.getComponent(Faction.class); 
@@ -39,7 +39,7 @@ public class CombatSystem {
 			if(ct.target != null) {
 				Health th = ct.target.getComponent(Health.class);
 				//if target is dead or removed
-				if(th == null || th.getHealth() <= 0) {
+				if(th == null || th.current <= 0) {
 					ct.target = null;
 				
 				}else {
@@ -93,18 +93,7 @@ public class CombatSystem {
 		//-------------------------------------------------------------------	
 		entities.addAll(toAdd);
 		entities.removeAll(toRemove);
-		//removeCounter += 0.2;//TODO: work here the logic should be in the system
-		//System.out.println(removeCounter);
-		/*
-		if(removeCounter >= Engine.UPS) {	
-			for(Entity e : entities) {
-				if(e.hasComponent(DamageEvent.class)) {  
-					removeCounter = 0;
-					e.removeComponent(DamageEvent.class); 
-				}
-			} 
-		}
-		 */
+		 
 	}
 	/**
 	 * find closest enemy within range
@@ -164,88 +153,80 @@ public class CombatSystem {
 		int dy = (int) (tp.y - ap.y);
 		double dist = Math.sqrt(dx * dx + dy * dy);
 		
-		if(dist > atk.range) return;
-		//update counter for attack
-		//atk.update();
+		if(dist > atk.range) return; 
+		//-------------------------------------------------------------------
+		// hit calculation
+		//-------------------------------------------------------------------	 
+		float hitChance = acc.value - ev.value;
+		hitChance = Math.max(0f, Math.min(1f, hitChance)); //clamp 0-1;
 		
-		//if(atk.isInCombat() && atk.atkCounter() >= Engine.UPS) {
-		//	atk.setCounter(0.0); //reset counter for attacking			
-			//atk.isInCombat(false); //TODO: attack is disabled here
+		float roll = ThreadLocalRandom.current().nextFloat();
+		
+		if(roll > hitChance) {
+			//miss or dodge
+			//if(acc.value < ev.value) {
+				//target.addComponent(new DamageEvent("dodge")); //dodge 
+			//} else {
+				//target.addComponent(new DamageEvent("miss")); //miss
+			//}
+			//Miss or dodge
+			//String text = (acc.value < ev.value) ? "1" : "miss";
+			spawnDamageText(target, "miss", toAdd, false); //only miss no dodge
 			
-			//-------------------------------------------------------------------
-			// hit calculation
-			//-------------------------------------------------------------------	 
-			float hitChance = acc.value - ev.value;
-			hitChance = Math.max(0f, Math.min(1f, hitChance)); //clamp 0-1;
-			
-			float roll = ThreadLocalRandom.current().nextFloat();
-			
-			if(roll > hitChance) {
-				//miss or doge
-				//if(acc.value < ev.value) {
-					//target.addComponent(new DamageEvent("dodge")); //dodge 
-				//} else {
-					//target.addComponent(new DamageEvent("miss")); //miss
-				//}
-				//Miss or dodge
-				//String text = (acc.value < ev.value) ? "1" : "miss";
-				spawnDamageText(target, "miss", toAdd, false); //only miss no dodge
+			return; 
+		}
+		//-------------------------------------------------------------------
+		// damage calculation
+		//-------------------------------------------------------------------	  
+		int rawDamage = random(atk.min, atk.max);
+		//def
+		int defense = random(def.min, def.max);
+		//
+		int finalDamage = rawDamage - defense;// Math.max(0, rawDamage - defense);
+		if(finalDamage <= 0) {
+			//target.addComponent(new DamageEvent("blocked"));
+			//spawnDamageText(target, "1", toAdd);
+			finalDamage = 1;				
+			//return;
+		}
+		//-------------------------------------------------------------------
+		// crit hit check
+		//-------------------------------------------------------------------	  
+		boolean isCrit = false;
+		CriticalHit ch = attacker.getComponent(CriticalHit.class);
+		
+		if(ch != null) {
+			float critRoll = ThreadLocalRandom.current().nextFloat();
+			if(critRoll < ch.critChance) {
+				isCrit = true;
+				finalDamage = Math.round(finalDamage * ch.critMultiplier);
+				System.out.println(attacker.race + " CRIT dmg: " + finalDamage + " HP: "+ th.current); 
 				
-				return; 
 			}
-			//-------------------------------------------------------------------
-			// damage calculation
-			//-------------------------------------------------------------------	  
-			int rawDamage = random(atk.min, atk.max);
-			//def
-			int defense = random(def.min, def.max);
-			//
-			int finalDamage = rawDamage - defense;// Math.max(0, rawDamage - defense);
-			if(finalDamage <= 0) {
-				//target.addComponent(new DamageEvent("blocked"));
-				//spawnDamageText(target, "1", toAdd);
-				finalDamage = 1;				
-				//return;
-			}
-			//-------------------------------------------------------------------
-			// crit hit check
-			//-------------------------------------------------------------------	  
-			boolean isCrit = false;
-			CriticalHit ch = attacker.getComponent(CriticalHit.class);
-			
-			if(ch != null) {
-				float critRoll = ThreadLocalRandom.current().nextFloat();
-				if(critRoll < ch.critChance) {
-					isCrit = true;
-					finalDamage = Math.round(finalDamage * ch.critMultiplier);
-					System.out.println(attacker.race + " CRIT dmg: " + finalDamage + " HP: "+ th.health); 
-					
-				}
-			}
-			
-			//apply damage   
-			double result = th.health -= finalDamage;
-			
-			th.health = result;//.setHealth(result);
-			//target.addComponent(new DamageEvent(String.valueOf(finalDamage)));  
-			spawnDamageText(target, String.valueOf(finalDamage), toAdd, isCrit);
-			System.out.println(attacker.race + " has attack! dmg: " + finalDamage + " HP: "+ th.health); 
-			
-			//mark for removal if dead
-			if(th.health <= 0) {
-				GodMode gm = target.getComponent(GodMode.class);
-				if(gm != null) {
-					gm.activate(target);
-				}else {
-					toRemove.add(target);
-				}
-				 
-			 }
-		//}//if(atk.isInCombat() && atk.atkCounter() >= Engine.UPS
+		}
 		
-	} 
+		//apply damage   
+		th.damage(finalDamage);
+		//double result = th.current -= finalDamage;
+		
+		//th.current = (int) result;//.setHealth(result);
+		//target.addComponent(new DamageEvent(String.valueOf(finalDamage)));  
+		spawnDamageText(target, String.valueOf(finalDamage), toAdd, isCrit);
+		System.out.println(attacker.race + " has attack! dmg: " + finalDamage + " HP: "+ th.current); 
+		
+		//mark for removal if dead
+		if(th.current <= 0) {
+			GodMode gm = target.getComponent(GodMode.class);
+			if(gm != null) {
+				gm.activate(target);
+			}else {
+				toRemove.add(target);
+			}
+			 
+		 } 
+		
+	}  
 	
-
 	private void spawnDamageText(Entity target, 
 								 String text, 
 								 List<Entity> toAdd,
