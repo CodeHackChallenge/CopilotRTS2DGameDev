@@ -1,136 +1,197 @@
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Graphics2D;
-import java.awt.Rectangle;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
-public class RenderSystem {
+public class CombatSystem {
 
-    private boolean debugCollision = false; // toggle for debugging hitboxes
+    public void update(List<Entity> entities,
+                       float delta,
+                       List<HitDetectionSystem.HitEvent> hits) {
 
-    public void render(Graphics2D graphics2D, List<Entity> entities) {
+        List<Entity> toRemove = new ArrayList<>();
+        List<Entity> toAdd = new ArrayList<>();
 
-        for (Entity e : entities) {
+        // ---------------------------------------------------------
+        // 1. Handle cooldowns and attack attempts
+        // ---------------------------------------------------------
+        for (Entity attacker : entities) {
 
-            Position pos = e.getComponent(Position.class);
-            if (pos == null) continue;
+            Health ah = attacker.getComponent(Health.class);
+            if (ah == null || ah.current <= 0) continue;
 
-            EntityAnimation anim = e.getComponent(EntityAnimation.class);
-            Sprite sprite = e.getComponent(Sprite.class);
+            Attack atk = attacker.getComponent(Attack.class);
+            Faction af = attacker.getComponent(Faction.class);
+            Accuracy acc = attacker.getComponent(Accuracy.class);
+
+            if (atk == null || af == null || acc == null)
+                continue;
 
             // ---------------------------------------------------------
-            // SPRITE / ANIMATION
+            // CurrentTarget (NO auto-targeting anymore)
             // ---------------------------------------------------------
-            if (anim != null) {
-                Animation a = anim.getAnimation();
-                if (a != null) {
-                    graphics2D.drawImage(a.getCurrentFrame(),
-                            (int) pos.x,
-                            (int) pos.y,
-                            null);
-                }
-            } else if (sprite != null) {
-                graphics2D.setColor(sprite.color);
-                graphics2D.fillRect((int) pos.x, (int) pos.y, sprite.width, sprite.height);
+            CurrentTarget ct = attacker.getComponent(CurrentTarget.class);
+            if (ct == null) {
+                ct = new CurrentTarget(null);
+                attacker.addComponent(ct);
+            }
+
+            // If no target → do nothing
+            if (ct.target == null) continue;
+
+            // If target is dead → clear target
+            Health th = ct.target.getComponent(Health.class);
+            if (th == null || th.current <= 0) {
+                ct.target = null;
+                continue;
             }
 
             // ---------------------------------------------------------
-            // HEALTH BAR (Collision‑anchored)
+            // Attack cooldown
             // ---------------------------------------------------------
-            Health hp = e.getComponent(Health.class);
-            Collision col = e.getComponent(Collision.class);
-
-            if (hp != null && col != null) {
-
-                float pct = hp.getDisplayedPrecent();
-
-                // Collision bounds determine HP bar position
-                Rectangle bounds = col.getBounds(pos);
-
-                int barWidth = bounds.width;
-                int barHeight = 6;
-
-                int screenX = bounds.x;
-                int screenY = bounds.y - barHeight - 2;
-
-                // Lerp color (your original logic preserved)
-                Color green = Color.GREEN;
-                Color orange = Color.ORANGE;
-                Color red = Color.RED;
-
-                Color barColor;
-                if (pct > 0.5f) {
-                    float t = (pct - 0.5f) / 0.5f;
-                    barColor = lerpColor(orange, green, t);
-                } else if (pct > 0.25f) {
-                    float t = (pct - 0.25f) / 0.25f;
-                    barColor = lerpColor(red, orange, t);
-                } else {
-                    barColor = Color.RED;
-                }
-
-                int filled = (int) (barWidth * pct);
-                if (hp.current > 0) filled = Math.max(1, filled);
-
-                // Draw bar
-                graphics2D.setColor(barColor);
-                graphics2D.fillRect(screenX, screenY, filled, barHeight);
+            AttackCoolDown acd = attacker.getComponent(AttackCoolDown.class);
+            if (acd == null) {
+                acd = new AttackCoolDown(1f);
+                attacker.addComponent(acd);
             }
 
+            acd.cooldown -= delta;
+            if (acd.cooldown > 0f) continue;
+
+            acd.cooldown = 1f / acd.attackSpeed;
+
             // ---------------------------------------------------------
-            // DAMAGE TEXT (your original code)
+            // 2. Check collision hits for this attacker
             // ---------------------------------------------------------
-            RenderTextComponent rtc = e.getComponent(RenderTextComponent.class);
-            DamageTextComponent dt = e.getComponent(DamageTextComponent.class);
+            for (HitDetectionSystem.HitEvent event : hits) {
 
-            if (rtc != null && dt != null) {
+                if (event.attacker != attacker) continue;
 
-                int baseX = (int) (pos.x + dt.offsetX);
-                int baseY = (int) (pos.y + dt.offsetY);
+                // Only attack the chosen target
+                if (event.target != ct.target) continue;
 
-                int alpha = (int) (dt.alpha * 255);
-                alpha = Math.max(0, Math.min(255, alpha));
-
-                Color shadowColor = new Color(0, 0, 0, alpha);
-                Color mainColor = new Color(
-                        rtc.color.getRed(),
-                        rtc.color.getGreen(),
-                        rtc.color.getBlue(),
-                        alpha
-                );
-
-                Graphics2D gText = (Graphics2D) graphics2D.create();
-                gText.translate(baseX, baseY);
-                gText.scale(dt.scale, dt.scale);
-
-                if (!dt.isCrit) {
-                    gText.setColor(shadowColor);
-                    gText.drawString(dt.text, rtc.shadowOffsetX, rtc.shadowOffsetY);
-                }
-
-                gText.setColor(mainColor);
-                gText.setFont(new Font("Arial", Font.BOLD, rtc.size));
-                gText.drawString(dt.text, 0, 0);
-
-                gText.dispose();
+                attackTarget(attacker, ct.target, toRemove, toAdd);
             }
+        }
 
-            // ---------------------------------------------------------
-            // DEBUG COLLISION BOX
-            // ---------------------------------------------------------
-            if (debugCollision && col != null) {
-                Rectangle r = col.getBounds(pos);
-                graphics2D.setColor(new Color(0, 255, 0, 150));
-                graphics2D.drawRect(r.x, r.y, r.width, r.height);
+        // ---------------------------------------------------------
+        // 3. Apply entity removal and additions
+        // ---------------------------------------------------------
+        entities.addAll(toAdd);
+        entities.removeAll(toRemove);
+    }
+
+    // -------------------------------------------------------------
+    // Attack logic (unchanged from your original version)
+    // -------------------------------------------------------------
+    private void attackTarget(Entity attacker,
+                              Entity target,
+                              List<Entity> toRemove,
+                              List<Entity> toAdd) {
+
+        Attack atk = attacker.getComponent(Attack.class);
+        Accuracy acc = attacker.getComponent(Accuracy.class);
+
+        Health th = target.getComponent(Health.class);
+        Evasion ev = target.getComponent(Evasion.class);
+        Defense def = target.getComponent(Defense.class);
+
+        if (th == null || ev == null || def == null) return;
+
+        // ---------------------------------------------------------
+        // HIT CHANCE
+        // ---------------------------------------------------------
+        float hitChance = acc.value - ev.value;
+        hitChance = Math.max(0f, Math.min(1f, hitChance));
+
+        float roll = ThreadLocalRandom.current().nextFloat();
+
+        if (roll > hitChance) {
+            spawnDamageText(target, "miss", toAdd, false);
+            return;
+        }
+
+        // ---------------------------------------------------------
+        // DAMAGE
+        // ---------------------------------------------------------
+        int rawDamage = random(atk.min, atk.max);
+        int defense = random(def.min, def.max);
+
+        int finalDamage = rawDamage - defense;
+        if (finalDamage <= 0) finalDamage = 1;
+
+        // ---------------------------------------------------------
+        // CRITICAL HIT
+        // ---------------------------------------------------------
+        boolean isCrit = false;
+        CriticalHit ch = attacker.getComponent(CriticalHit.class);
+
+        if (ch != null) {
+            float critRoll = ThreadLocalRandom.current().nextFloat();
+            if (critRoll < ch.critChance) {
+                isCrit = true;
+                finalDamage = Math.round(finalDamage * ch.critMultiplier);
+            }
+        }
+
+        // ---------------------------------------------------------
+        // APPLY DAMAGE
+        // ---------------------------------------------------------
+        th.damage(finalDamage);
+
+        spawnDamageText(target, String.valueOf(finalDamage), toAdd, isCrit);
+
+        // ---------------------------------------------------------
+        // DEATH HANDLING
+        // ---------------------------------------------------------
+        if (th.current <= 0) {
+            GodMode gm = target.getComponent(GodMode.class);
+            if (gm != null) {
+                gm.activate(target);
+            } else {
+                toRemove.add(target);
             }
         }
     }
 
-    private Color lerpColor(Color a, Color b, float t) {
-        t = Math.max(0f, Math.min(1f, t));
-        int r = (int) (a.getRed() + (b.getRed() - a.getRed()) * t);
-        int g = (int) (a.getGreen() + (b.getGreen() - a.getGreen()) * t);
-        int bc = (int) (a.getBlue() + (b.getBlue() - a.getBlue()) * t);
-        return new Color(r, g, bc);
+    // -------------------------------------------------------------
+    // Damage text (your original version)
+    // -------------------------------------------------------------
+    private void spawnDamageText(Entity target,
+                                 String text,
+                                 List<Entity> toAdd,
+                                 boolean isCrit) {
+
+        Position tp = target.getComponent(Position.class);
+
+        int w = 32;
+        int h = 32;
+
+        int offsetX = ThreadLocalRandom.current().nextInt(0, w);
+        int offsetY = ThreadLocalRandom.current().nextInt(0, h);
+
+        Entity textEntity = new Entity();
+        textEntity.addComponent(new Position(tp.x, tp.y));
+
+        RenderTextComponent rtc =
+                isCrit ? new RenderTextComponent(Color.ORANGE, 18)
+                       : new RenderTextComponent(Color.WHITE, 14);
+
+        textEntity.addComponent(rtc);
+
+        DamageTextComponent dt = new DamageTextComponent(text, offsetX, offsetY);
+
+        if (isCrit) {
+            dt.isCrit = true;
+            dt.scale = 1.4f;
+            dt.shakeIntensity = 4f;
+            dt.shakeTime = 0.15f;
+        }
+
+        textEntity.addComponent(dt);
+        toAdd.add(textEntity);
+    }
+
+    private int random(int min, int max) {
+        return ThreadLocalRandom.current().nextInt(min, max + 1);
     }
 }
