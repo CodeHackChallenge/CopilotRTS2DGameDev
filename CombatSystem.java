@@ -155,4 +155,3 @@ public class CombatSystem {
         return ThreadLocalRandom.current().nextInt(min, max + 1);
     }
 }
-
