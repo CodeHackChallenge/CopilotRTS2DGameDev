@@ -6,281 +6,214 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class CombatSystem {
- 
-	//private static final ThreadLocalRandom RNG = ThreadLocalRandom.current();
-	//private double removeCounter = 0;
-	public void update(List<Entity> entities) {
-		List<Entity> toRemove = new ArrayList<>();
-		List<Entity> toAdd = new ArrayList<>();
-		
-		for(Entity attacker : entities) {
 
-			Health ah = attacker.getComponent(Health.class);
-			
-			if(ah == null || ah.current <= 0) {continue;}
-			
-			Attack atk = attacker.getComponent(Attack.class);
-			Faction af = attacker.getComponent(Faction.class); 
-			Accuracy acc = attacker.getComponent(Accuracy.class);
-			Position ap = attacker.getComponent(Position.class);
-			
-			if(atk == null || af == null || acc == null) {continue;}
-			//-------------------------------------------------------------------
-			// Get or create current target
-			//-------------------------------------------------------------------			
-			CurrentTarget ct = attacker.getComponent(CurrentTarget.class);
-			if(ct == null) {
-				ct = new CurrentTarget(null);
-				attacker.addComponent(ct);
-			}
-			//-------------------------------------------------------------------
-			// validate current target
-			//-------------------------------------------------------------------			
-			if(ct.target != null) {
-				Health th = ct.target.getComponent(Health.class);
-				//if target is dead or removed
-				if(th == null || th.current <= 0) {
-					ct.target = null;
-				
-				}else {
-					//check distance
-					Position tp = ct.target.getComponent(Position.class);
-					int dx = (int) (tp.x - ap.x);
-					int dy = (int) (tp.y - ap.y);
-					double dist = Math.sqrt(dx * dx + dy * dy);
-					
-					if(dist > atk.range) {
-						ct.target = null; //out of range: drop target
-					}
-				}
-				
-			}//if(ct.target != null)
-			//-------------------------------------------------------------------
-			// acquire new target if needed
-			//-------------------------------------------------------------------			
-			if(ct.target == null) {
-				ct.target =  findClosestEnemy(attacker, entities, atk.range);
-			}
-			
-			//No target found
-			if(ct.target == null) continue; 
-			//-------------------------------------------------------------------
-			// attack cooldown handling
-			//-------------------------------------------------------------------			
-			AttackCoolDown acd = attacker.getComponent(AttackCoolDown.class);
-			if(acd == null) {
-				acd = new AttackCoolDown(1f); //default 1 attack per second
-				attacker.addComponent(acd);
-			}
-			//reduce cooldown
-			acd.cooldown -=  0.005;//1 / Engine.UPS;//delta;
-			
-			//cannot attack yet
-			if(acd.cooldown > 0f) continue;
-			
-			//attack is allowed
-			acd.cooldown = 1f / acd.attackSpeed;
-			
-			
-			//-------------------------------------------------------------------
-			// attack the current target only
-			//-------------------------------------------------------------------			
-			attackTarget(attacker, ct.target, toRemove, toAdd); 
-			
-		}
-		//-------------------------------------------------------------------
-		// remove dead units after combat loop
-		//-------------------------------------------------------------------	
-		entities.addAll(toAdd);
-		entities.removeAll(toRemove);
-		 
-	}
-	/**
-	 * find closest enemy within range
-	 * @param attacker
-	 * @param entities
-	 * @param range
-	 * @return
-	 */
-	private Entity findClosestEnemy(Entity attacker, List<Entity> entities, int range) {
-		Position ap = attacker.getComponent(Position.class);
-		Faction af = attacker.getComponent(Faction.class);
-		
-		Entity closest = null;
-		double closestDist = Double.MAX_VALUE;
-		
-		for(Entity target : entities) {
-			if(attacker == target) continue; //don't attack yourself
-			
-			Faction tf = target.getComponent(Faction.class);
-			Health th = target.getComponent(Health.class);
-			Position tp = target.getComponent(Position.class);
-			
-			if(tf == null || th == null || tp == null) continue;
-			if(tf.type == af.type) continue; //same faction 
-			
-			int dx = (int) (tp.x - ap.x);
-			int dy = (int) (tp.y - ap.y);
-			double dist = Math.sqrt(dx * dx + dy * dy);
-			
-			if(dist <= range && dist < closestDist) {
-				closestDist = dist;
-				closest = target;
-			}
-			
-		}
-		return closest;
-	}
-	/**
-	 * attack logic for a single target
-	 */
-	private void attackTarget(Entity attacker, 
-							  Entity target, 
-							  List<Entity> toRemove,  
-							  List<Entity> toAdd) {
-		Attack atk = attacker.getComponent(Attack.class);
-		Accuracy acc = attacker.getComponent(Accuracy.class);
-		Position ap = attacker.getComponent(Position.class);
-		
-		Health th = target.getComponent(Health.class);
-		Evasion ev = target.getComponent(Evasion.class);
-		Defense def = target.getComponent(Defense.class);
-		Position tp = target.getComponent(Position.class);
-		
-		if(th == null || ev == null || def == null || tp == null) return;
-		//distance check
-		int dx = (int) (tp.x - ap.x);
-		int dy = (int) (tp.y - ap.y);
-		double dist = Math.sqrt(dx * dx + dy * dy);
-		
-		if(dist > atk.range) return; 
-		//-------------------------------------------------------------------
-		// hit calculation
-		//-------------------------------------------------------------------	 
-		float hitChance = acc.value - ev.value;
-		hitChance = Math.max(0f, Math.min(1f, hitChance)); //clamp 0-1;
-		
-		float roll = ThreadLocalRandom.current().nextFloat();
-		
-		if(roll > hitChance) {
-			//miss or dodge
-			//if(acc.value < ev.value) {
-				//target.addComponent(new DamageEvent("dodge")); //dodge 
-			//} else {
-				//target.addComponent(new DamageEvent("miss")); //miss
-			//}
-			//Miss or dodge
-			//String text = (acc.value < ev.value) ? "1" : "miss";
-			spawnDamageText(target, "miss", toAdd, false); //only miss no dodge
-			
-			return; 
-		}
-		//-------------------------------------------------------------------
-		// damage calculation
-		//-------------------------------------------------------------------	  
-		int rawDamage = random(atk.min, atk.max);
-		//def
-		int defense = random(def.min, def.max);
-		//
-		int finalDamage = rawDamage - defense;// Math.max(0, rawDamage - defense);
-		if(finalDamage <= 0) {
-			//target.addComponent(new DamageEvent("blocked"));
-			//spawnDamageText(target, "1", toAdd);
-			finalDamage = 1;				
-			//return;
-		}
-		//-------------------------------------------------------------------
-		// crit hit check
-		//-------------------------------------------------------------------	  
-		boolean isCrit = false;
-		CriticalHit ch = attacker.getComponent(CriticalHit.class);
-		
-		if(ch != null) {
-			float critRoll = ThreadLocalRandom.current().nextFloat();
-			if(critRoll < ch.critChance) {
-				isCrit = true;
-				finalDamage = Math.round(finalDamage * ch.critMultiplier);
-				System.out.println(attacker.race + " CRIT dmg: " + finalDamage + " HP: "+ th.current); 
-				
-			}
-		}
-		
-		//apply damage   
-		th.damage(finalDamage);
-		//double result = th.current -= finalDamage;
-		
-		//th.current = (int) result;//.setHealth(result);
-		//target.addComponent(new DamageEvent(String.valueOf(finalDamage)));  
-		spawnDamageText(target, String.valueOf(finalDamage), toAdd, isCrit);
-		System.out.println(attacker.race + " has attack! dmg: " + finalDamage + " HP: "+ th.current); 
-		
-		//mark for removal if dead
-		if(th.current <= 0) {
-			GodMode gm = target.getComponent(GodMode.class);
-			if(gm != null) {
-				gm.activate(target);
-			}else {
-				toRemove.add(target);
-			}
-			 
-		 } 
-		
-	}  
-	
-	private void spawnDamageText(Entity target, 
-								 String text, 
-								 List<Entity> toAdd,
-								 boolean isCrit) {
-		
-		Position tp = target.getComponent(Position.class);
-		 
-		int w = 32;
-		int h = 32;
-		
-		int offsetX = ThreadLocalRandom.current().nextInt(0, w);
-		int offsetY = ThreadLocalRandom.current().nextInt(0, h);
-		
-		Entity textEntity = new Entity();
-		textEntity.addComponent(new Position(tp.x, tp.y));
-		
-		RenderTextComponent rtc;
-		
-		if(isCrit) {
-			rtc = new RenderTextComponent(Color.ORANGE, 18);
-			
-		}else {
-			rtc = new RenderTextComponent(Color.WHITE, 14);
-		}
-		
-		textEntity.addComponent(rtc);
-		
-		DamageTextComponent dt = new DamageTextComponent(text, offsetX, offsetY);
-		
-		if(isCrit) {
-			dt.isCrit = true;
-			dt.scale = 1.4f; //40% bigger
-			dt.shakeIntensity = 4f; //radius
-			dt.shakeTime = 0.15f; //duration
-		}
-		
-		textEntity.addComponent(dt);
-		
-		/*
-		Entity textEntity = new Entity();
-		textEntity.addComponent(new Position(tp.x, tp.y));
-		textEntity.addComponent(new RenderTextComponent(Color.WHITE, 14));
-		textEntity.addComponent(new DamageTextComponent(text, offsetX, offsetY));
-		*/
-		//entities.add(textEntity);
-		toAdd.add(textEntity);
-	}
-	/**
-	 * Utility method
-	 * @param min
-	 * @param max
-	 * @return
-	 */
-	private int random(int min, int max) {
-		return ThreadLocalRandom.current().nextInt(min, max + 1);
-	}
+    public void update(List<Entity> entities,
+                       float delta,
+                       List<HitDetectionSystem.HitEvent> hits) {
+
+        List<Entity> toRemove = new ArrayList<>();
+        List<Entity> toAdd = new ArrayList<>();
+
+        // ---------------------------------------------------------
+        // 1. Handle cooldowns and attack attempts
+        // ---------------------------------------------------------
+        for (Entity attacker : entities) {
+
+            Health ah = attacker.getComponent(Health.class);
+            if (ah == null || ah.current <= 0) continue;
+
+            Attack atk = attacker.getComponent(Attack.class);
+            Faction af = attacker.getComponent(Faction.class);
+            Accuracy acc = attacker.getComponent(Accuracy.class);
+
+            if (atk == null || af == null || acc == null)
+                continue;
+
+            // ---------------------------------------------------------
+            // CurrentTarget (NO auto-targeting anymore)
+            // ---------------------------------------------------------
+            CurrentTarget ct = attacker.getComponent(CurrentTarget.class);
+            if (ct == null) {
+                ct = new CurrentTarget(null);
+                attacker.addComponent(ct);
+            }
+
+            // If no target → do nothing
+            if (ct.target == null) continue;
+
+            // If target is dead → clear target
+            Health th = ct.target.getComponent(Health.class);
+            if (th == null || th.current <= 0) {
+                ct.target = null;
+                continue;
+            }
+
+            // ---------------------------------------------------------
+            // Attack cooldown
+            // ---------------------------------------------------------
+            AttackCoolDown acd = attacker.getComponent(AttackCoolDown.class);
+            if (acd == null) {
+                acd = new AttackCoolDown(1f);
+                attacker.addComponent(acd);
+            }
+          /*
+            //for debugging
+        	EntityAnimation animComp = attacker.getComponent(EntityAnimation.class);
+        	Animation anim = animComp.getAnimation();  
+            System.out.println("ID: "+ attacker.race +" CD: " + acd.cooldown + " | frame: " + anim.currentFrame);
+          */
+            acd.cooldown -= delta;
+            
+            
+            if (acd.cooldown > 0f) continue;
+
+            acd.cooldown = 1f / acd.attackSpeed;
+           
+            // ---------------------------------------------------------
+            // 2. Check collision hits for this attacker
+            // ---------------------------------------------------------
+            for (HitDetectionSystem.HitEvent event : hits) {
+            	 
+                if (event.attacker != attacker) continue;
+
+                // Only attack the chosen target
+                if (event.target != ct.target) continue; 
+                attackTarget(attacker, ct.target, toRemove, toAdd); 
+            }
+        }
+
+        // ---------------------------------------------------------
+        // 3. Apply entity removal and additions
+        // ---------------------------------------------------------
+        entities.addAll(toAdd);
+        entities.removeAll(toRemove);
+    }
+
+    // -------------------------------------------------------------
+    // Attack logic (unchanged from your original version)
+    // -------------------------------------------------------------
+    private void attackTarget(Entity attacker,
+                              Entity target,
+                              List<Entity> toRemove,
+                              List<Entity> toAdd) {
+
+        Attack atk = attacker.getComponent(Attack.class);
+        Accuracy acc = attacker.getComponent(Accuracy.class);
+
+        Health th = target.getComponent(Health.class);
+        Evasion ev = target.getComponent(Evasion.class);
+        Defense def = target.getComponent(Defense.class);
+
+        if (th == null || ev == null || def == null) return;
+
+        // ---------------------------------------------------------
+        // HIT CHANCE
+        // ---------------------------------------------------------
+        float hitChance = acc.value - ev.value;
+        hitChance = Math.max(0f, Math.min(1f, hitChance));
+
+        float roll = ThreadLocalRandom.current().nextFloat();
+
+        if (roll > hitChance) {
+            spawnDamageText(target, "miss", toAdd, false);
+            return;
+        }
+
+        // ---------------------------------------------------------
+        // DAMAGE
+        // ---------------------------------------------------------
+        int rawDamage = random(atk.min, atk.max);
+        int defense = random(def.min, def.max);
+
+        int finalDamage = rawDamage - defense;
+        if (finalDamage <= 0) finalDamage = 1;
+
+        // ---------------------------------------------------------
+        // CRITICAL HIT
+        // ---------------------------------------------------------
+        boolean isCrit = false;
+        CriticalHit ch = attacker.getComponent(CriticalHit.class);
+
+        if (ch != null) {
+            float critRoll = ThreadLocalRandom.current().nextFloat();
+            if (critRoll < ch.critChance) {
+                isCrit = true;
+                finalDamage = Math.round(finalDamage * ch.critMultiplier);
+            }
+        }
+
+        // ---------------------------------------------------------
+        // APPLY DAMAGE
+        // ---------------------------------------------------------        
+//        AttackCycle cycle = attacker.getComponent(AttackCycle.class);
+//        if(cycle != null && cycle.hasHit) return; //already hit cycle
+//        
+        th.damage(finalDamage);
+
+        
+        spawnDamageText(target, String.valueOf(finalDamage), toAdd, isCrit);
+//        if(cycle != null) {
+//        	cycle.hasHit = true;
+//        }
+        // ---------------------------------------------------------
+        // DEATH HANDLING
+        // ---------------------------------------------------------
+        if (th.current <= 0) {
+            GodMode gm = target.getComponent(GodMode.class);
+            if (gm != null) {
+                gm.activate(target);
+            } else {
+                toRemove.add(target);
+            }
+        }
+    }
+
+    // -------------------------------------------------------------
+    // Damage text (your original version)
+    // -------------------------------------------------------------
+    private void spawnDamageText(Entity target,
+                                 String text,
+                                 List<Entity> toAdd,
+                                 boolean isCrit) {
+
+        Position tp = target.getComponent(Position.class);
+
+        //get collision box of target        
+        Collision col = target.getComponent(Collision.class);
+        
+        double x = tp.x + col.offsetX;
+        double y = tp.y + col.offsetY;
+        
+        int w = col.width; //32;
+        int h = col.height; //32;
+
+        int offsetX = ThreadLocalRandom.current().nextInt(0, w);
+        int offsetY = ThreadLocalRandom.current().nextInt(0, h);
+
+        
+        Entity textEntity = new Entity();
+        textEntity.addComponent(new Position(x, y));
+
+        RenderTextComponent rtc =
+                isCrit ? new RenderTextComponent(Color.ORANGE, 18)
+                       : new RenderTextComponent(Color.WHITE, 14);
+
+        textEntity.addComponent(rtc);
+
+        DamageTextComponent dt = new DamageTextComponent(text, offsetX, offsetY);
+
+        if (isCrit) {
+            dt.isCrit = true;
+            dt.scale = 1.4f;
+            dt.shakeIntensity = 4f;
+            dt.shakeTime = 0.15f;
+        }
+
+        textEntity.addComponent(dt);
+        toAdd.add(textEntity);
+    }
+
+    private int random(int min, int max) {
+        return ThreadLocalRandom.current().nextInt(min, max + 1);
+    }
 }
