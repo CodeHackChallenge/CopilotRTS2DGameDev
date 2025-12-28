@@ -1,79 +1,45 @@
-import java.awt.Rectangle;
-import java.util.ArrayList;
-import java.util.List;
-
-public class HitDetectionSystem {
-
-    public static class HitEvent {
-        public final Entity attacker;
-        public final Entity target;
-
-        public HitEvent(Entity attacker, Entity target) {
-            this.attacker = attacker;
-            this.target = target;
-        }
-    }
-
-    private final List<HitEvent> currentHits = new ArrayList<>();
+public class AnimationSystem {
 
     public void update(List<Entity> entities, float delta) {
 
-        currentHits.clear();
+        for (Entity e : entities) {
 
-        int size = entities.size();
+            EntityAnimation animComp = e.getComponent(EntityAnimation.class);
+            if (animComp == null) continue;
 
-        for (int i = 0; i < size; i++) {
+            Animation anim = animComp.getAnimation();
+            if (anim == null) continue;
 
-            Entity attacker = entities.get(i);
+            // Advance animation timer
+            anim.timer += delta;
 
-            // Attacker must have a weapon hitbox
-            AttackHitbox atkHit = attacker.getComponent(AttackHitbox.class);
-            if (atkHit == null) continue;
+            if (anim.timer >= anim.frameDelay) {
+                anim.timer -= anim.frameDelay;
+                anim.currentFrame++;
 
-            Position posA = attacker.getComponent(Position.class);
-            Faction facA = attacker.getComponent(Faction.class);
-            Health hpA = attacker.getComponent(Health.class);
-
-            if (posA == null || facA == null || hpA == null) continue;
-            if (hpA.current <= 0) continue;
-
-            Rectangle swordBox = atkHit.getBounds(posA);
+                if (anim.currentFrame >= anim.totalFrames) {
+                    anim.currentFrame = 0;
+                }
+            }
 
             // ---------------------------------------------------------
-            // Check all potential targets
+            // PER-FRAME HITBOX UPDATE (Sword hit frame logic)
             // ---------------------------------------------------------
-            for (int j = 0; j < size; j++) {
+            AttackHitbox hitbox = e.getComponent(AttackHitbox.class);
+            if (hitbox != null) {
 
-                if (i == j) continue;
-
-                Entity target = entities.get(j);
-
-                Collision colB = target.getComponent(Collision.class);
-                Position posB = target.getComponent(Position.class);
-                Faction facB = target.getComponent(Faction.class);
-                Health hpB = target.getComponent(Health.class);
-
-                if (colB == null || posB == null || facB == null || hpB == null)
-                    continue;
-
-                if (hpB.current <= 0) continue;
-
-                // Must be enemy
-                if (facA.type == facB.type) continue;
-
-                Rectangle bodyBox = colB.getBounds(posB);
-
-                // ---------------------------------------------------------
-                // Sword hitbox intersects target hurtbox
-                // ---------------------------------------------------------
-                if (swordBox.intersects(bodyBox)) {
-                    currentHits.add(new HitEvent(attacker, target));
+                // Example: sword only hits on frame 2
+                if (anim.currentFrame == 2) {
+                    hitbox.offsetX = 32;  // adjust to your sprite
+                    hitbox.offsetY = 0;
+                    hitbox.width = 66;    // sword reach
+                    hitbox.height = 32;
+                } else {
+                    // Disable hitbox outside hit frame
+                    hitbox.width = 0;
+                    hitbox.height = 0;
                 }
             }
         }
-    }
-
-    public List<HitEvent> getCurrentHits() {
-        return currentHits;
     }
 }
