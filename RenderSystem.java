@@ -1,131 +1,72 @@
-package demo.main;
+public class RenderSystem {
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
-import java.util.List;
- 
- 
-public class RenderSystem { 
-    public void render(Graphics2D graphics2D, List<Entity> entities) { 
-    	
-    	for(Entity e : entities) {
-			Position pos = e.getComponent(Position.class);
-			
-			if(pos == null) continue;
-			
-			//Sprite image = e.getComponent(Sprite.class); 
-			EntityAnimation anim = e.getComponent(EntityAnimation.class);
-		 
-			//animation
-			if(anim != null) {
-				 BufferedImage frame = anim.getAnimation().getCurrentFrame();
-				 graphics2D.drawImage(frame, (int)pos.x, (int)pos.y, null);
-				 
-	         }  
-			 		
-			//-------------------------------------------------------------------
-			// HP and MP
-			//-------------------------------------------------------------------	 
-			Health hp = e.getComponent(Health.class);
-			if(hp != null) {
-				
-				float pct =  hp.getDisplayedPrecent();   
-				
-				int barWidth = 44;
-				int barHeight = 6;
-				 
-				int screenX = (int) pos.x + 10; 
-				int screenY = (int) pos.y - 6;
-				
-				//-------------------------------------------------------------------
-				// lerp color
-				//-------------------------------------------------------------------	 
-				Color green = Color.GREEN;
-				Color orange = Color.ORANGE;
-				Color red = Color.RED;
-				
-				Color barColor;
-				if(pct > 0.5f) {					
-					//barColor = Color.GREEN;
-					//green - orange
-					float t = (pct - 0.5f) / 0.5f; // 1 - 0
-					barColor = lerpColor(orange, green, t);
-				} else if(pct > 0.25f) {
-					//barColor = Color.ORANGE;
-					//orange - red
-					float t = (pct - 0.25f) / 0.25f;  
-					barColor = lerpColor(red, orange, t);
-				} else {
-					barColor = Color.RED;
-				}
-				//prevent disappearing bar
-				int filled = (int) (barWidth * pct);
-				if(hp.current > 0) {
-					filled = Math.max(1, filled);
-				}
-				
-				graphics2D.setColor(barColor);
-				graphics2D.fillRect(screenX, screenY, filled, barHeight);
-				
-			} 
-			
-			//-------------------------------------------------------------------
-			// damage Event
-			//-------------------------------------------------------------------	 
-			RenderTextComponent rtc = e.getComponent(RenderTextComponent.class);
-			DamageTextComponent dt = e.getComponent(DamageTextComponent.class); 
-			if(rtc != null && dt != null && pos != null) {  
-				int baseX = (int) (pos.x + dt.offsetX);
-				int baseY = (int) (pos.y + dt.offsetY); 
-				
-				int alpha = (int)(dt.alpha * 255);
-				alpha = Math.max(0, Math.min(255, alpha));
-				//shadow
-				Color shawdowColor = new Color(0, 0, 0, alpha);
-				//main color
-				Color mainColor = new Color(rtc.color.getRed(),
-										rtc.color.getGreen(),
-										rtc.color.getBlue(),
-										alpha						
-				);
-				//prepare scaled drawing
-				Graphics2D gText = (Graphics2D) graphics2D.create();
-				//apply scaling for crit 
-				gText.translate(baseX, baseY);
-				gText.scale(dt.scale, dt.scale);
-				
-				if(!dt.isCrit) {
-					//shadow
-					gText.setColor(shawdowColor); 
-					gText.drawString(dt.text, 
-							              rtc.shadowOffsetX, 
-							              rtc.shadowOffsetY 
-					);
-				}  
-				
-				gText.setColor(mainColor);
-				gText.setFont(new Font("Arial", Font.BOLD, rtc.size));		 
-				gText.drawString(dt.text, 0, 0);
-				
-				gText.dispose();
-			} 
-			 
-				
-		} 
-    	 
-    }
+    public void render(Graphics2D g, List<Entity> entities) {
 
-    private Color lerpColor(Color a, Color b, float t ) {
-    	t = Math.max(0f, Math.min(1f, t));
-    	int r = (int)(a.getRed() + (b.getRed() - a.getRed()) * t);
-    	int g = (int)(a.getGreen() + (b.getGreen() - a.getGreen()) * t);
-    	int bc = (int)(a.getBlue() + (b.getBlue() - a.getBlue()) * t);
-    	
-    	return new Color(r, g, bc);    	
+        for (Entity e : entities) {
+
+            Position pos = e.getComponent(Position.class);
+            if (pos == null) continue;
+
+            // ---------------------------------------------------------
+            // DRAW ANIMATION FRAME
+            // ---------------------------------------------------------
+            EntityAnimation animComp = e.getComponent(EntityAnimation.class);
+            if (animComp != null) {
+
+                Animation anim = animComp.getAnimation();
+                if (anim != null) {
+
+                    BufferedImage frame = anim.getFrame();
+                    if (frame != null) {
+                        g.drawImage(frame, (int) pos.x, (int) pos.y, null);
+                    }
+                }
+            }
+
+            // ---------------------------------------------------------
+            // DRAW DAMAGE TEXT
+            // ---------------------------------------------------------
+            DamageTextComponent dt = e.getComponent(DamageTextComponent.class);
+            if (dt != null) {
+                RenderTextComponent rtc = e.getComponent(RenderTextComponent.class);
+                if (rtc != null) {
+                    g.setColor(rtc.color);
+                    g.setFont(rtc.font);
+
+                    int drawX = (int) (pos.x + dt.offsetX);
+                    int drawY = (int) (pos.y + dt.offsetY);
+
+                    g.drawString(dt.text, drawX, drawY);
+                }
+            }
+
+            // ---------------------------------------------------------
+            // DEBUG: DRAW COLLISION BOX
+            // ---------------------------------------------------------
+            Collision col = e.getComponent(Collision.class);
+            if (col != null) {
+                g.setColor(Color.GREEN);
+                g.drawRect(
+                    (int) (pos.x + col.offsetX),
+                    (int) (pos.y + col.offsetY),
+                    col.width,
+                    col.height
+                );
+            }
+
+            // ---------------------------------------------------------
+            // DEBUG: DRAW ATTACK HITBOX
+            // ---------------------------------------------------------
+            AttackHitbox hit = e.getComponent(AttackHitbox.class);
+            if (hit != null && hit.width > 0 && hit.height > 0) {
+                g.setColor(Color.RED);
+                g.drawRect(
+                    (int) (pos.x + hit.offsetX),
+                    (int) (pos.y + hit.offsetY),
+                    hit.width,
+                    hit.height
+                );
+            }
+        }
     }
-	
-    
 }
-
