@@ -1,31 +1,33 @@
-package demo.main;
-
-import java.awt.image.BufferedImage;
- 
 public class Animation {
-    private BufferedImage[] frames;
-    private int currentFrame;
-    private int frameCount;
-    private int frameDelay;
-    private int tick; 
 
-    public Animation(BufferedImage[] frames, int frameDelay) {
-        this.frames = frames;
-        this.frameCount = frames.length;
+    public int totalFrames;
+    public int currentFrame = 0;
+
+    public float frameDelay;   // time per frame
+    public float timer = 0f;   // accumulates delta
+
+    public Animation(int totalFrames, float frameDelay) {
+        this.totalFrames = totalFrames;
         this.frameDelay = frameDelay;
-        this.currentFrame = 0;
-        this.tick = 0;
     }
 
-    public void update() {  
-        tick++;
-        if (tick >= frameDelay) {  
-            tick = 0; 
-            currentFrame = (currentFrame + 1) % frameCount;  
+    // Reset animation to the beginning
+    public void reset() {
+        currentFrame = 0;
+        timer = 0f;
+    }
+
+    // Advance animation by delta time
+    public void update(float delta) {
+        timer += delta;
+
+        if (timer >= frameDelay) {
+            timer -= frameDelay;
+            currentFrame++;
+
+            if (currentFrame >= totalFrames) {
+                currentFrame = 0;
+            }
         }
     }
-
-    public BufferedImage getCurrentFrame() {
-        return frames[currentFrame];
-    } 
 }
