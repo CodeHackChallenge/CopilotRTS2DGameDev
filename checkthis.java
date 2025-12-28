@@ -1,22 +1,79 @@
-public class AttackHitbox implements Component {
-    public int offsetX;
-    public int offsetY;
-    public int width;
-    public int height;
+import java.awt.Rectangle;
+import java.util.ArrayList;
+import java.util.List;
 
-    public AttackHitbox(int offsetX, int offsetY, int width, int height) {
-        this.offsetX = offsetX;
-        this.offsetY = offsetY;
-        this.width = width;
-        this.height = height;
+public class HitDetectionSystem {
+
+    public static class HitEvent {
+        public final Entity attacker;
+        public final Entity target;
+
+        public HitEvent(Entity attacker, Entity target) {
+            this.attacker = attacker;
+            this.target = target;
+        }
     }
 
-    public Rectangle getBounds(Position pos) {
-        return new Rectangle(
-            (int) pos.x + offsetX,
-            (int) pos.y + offsetY,
-            width,
-            height
-        );
+    private final List<HitEvent> currentHits = new ArrayList<>();
+
+    public void update(List<Entity> entities, float delta) {
+
+        currentHits.clear();
+
+        int size = entities.size();
+
+        for (int i = 0; i < size; i++) {
+
+            Entity attacker = entities.get(i);
+
+            // Attacker must have a weapon hitbox
+            AttackHitbox atkHit = attacker.getComponent(AttackHitbox.class);
+            if (atkHit == null) continue;
+
+            Position posA = attacker.getComponent(Position.class);
+            Faction facA = attacker.getComponent(Faction.class);
+            Health hpA = attacker.getComponent(Health.class);
+
+            if (posA == null || facA == null || hpA == null) continue;
+            if (hpA.current <= 0) continue;
+
+            Rectangle swordBox = atkHit.getBounds(posA);
+
+            // ---------------------------------------------------------
+            // Check all potential targets
+            // ---------------------------------------------------------
+            for (int j = 0; j < size; j++) {
+
+                if (i == j) continue;
+
+                Entity target = entities.get(j);
+
+                Collision colB = target.getComponent(Collision.class);
+                Position posB = target.getComponent(Position.class);
+                Faction facB = target.getComponent(Faction.class);
+                Health hpB = target.getComponent(Health.class);
+
+                if (colB == null || posB == null || facB == null || hpB == null)
+                    continue;
+
+                if (hpB.current <= 0) continue;
+
+                // Must be enemy
+                if (facA.type == facB.type) continue;
+
+                Rectangle bodyBox = colB.getBounds(posB);
+
+                // ---------------------------------------------------------
+                // Sword hitbox intersects target hurtbox
+                // ---------------------------------------------------------
+                if (swordBox.intersects(bodyBox)) {
+                    currentHits.add(new HitEvent(attacker, target));
+                }
+            }
+        }
+    }
+
+    public List<HitEvent> getCurrentHits() {
+        return currentHits;
     }
 }
