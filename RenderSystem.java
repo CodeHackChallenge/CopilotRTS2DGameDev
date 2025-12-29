@@ -1,3 +1,10 @@
+package demo.main;
+
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
+import java.util.List;
+
 public class RenderSystem {
 
     public void render(Graphics2D g, List<Entity> entities) {
@@ -18,7 +25,7 @@ public class RenderSystem {
 
                     BufferedImage frame = anim.getFrame();
                     if (frame != null) {
-                        g.drawImage(frame, (int) pos.x, (int) pos.y, null);
+                        g.drawImage(frame, (int) pos.x - 5, (int) pos.y, null);
                     }
                 }
             }
@@ -43,6 +50,7 @@ public class RenderSystem {
             // ---------------------------------------------------------
             // DEBUG: DRAW COLLISION BOX
             // ---------------------------------------------------------
+          //  /*
             Collision col = e.getComponent(Collision.class);
             if (col != null) {
                 g.setColor(Color.GREEN);
@@ -58,6 +66,7 @@ public class RenderSystem {
             // DEBUG: DRAW ATTACK HITBOX
             // ---------------------------------------------------------
             AttackHitbox hit = e.getComponent(AttackHitbox.class);
+            
             if (hit != null && hit.width > 0 && hit.height > 0) {
                 g.setColor(Color.RED);
                 g.drawRect(
@@ -67,6 +76,7 @@ public class RenderSystem {
                     hit.height
                 );
             }
+           // */
         }
     }
 }
