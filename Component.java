@@ -1,1 +1,5 @@
-public interface Component { }
+package demo.main;
+
+public interface Component {
+
+}
