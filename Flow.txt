@@ -1,0 +1,5 @@
+1. AttackStateSystem → enters HIT
+2. AttackHitboxSystem → activates hitbox
+3. HitDetectionSystem → detects overlap
+4. CombatSystem → applies damage
+5. RenderSystem → draws damage text
