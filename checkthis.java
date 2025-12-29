@@ -1,93 +1,547 @@
-CombatSystem hitApplied=false
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=false
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=false
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=false
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=false
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
-CombatSystem hitApplied=true
+State=IDLE timer=0.016666668 hitApplied=false
+State=WINDUP timer=0.016666668 hitApplied=false
+State=WINDUP timer=0.033333335 hitApplied=false
+State=WINDUP timer=0.050000004 hitApplied=false
+State=WINDUP timer=0.06666667 hitApplied=false
+State=WINDUP timer=0.083333336 hitApplied=false
+State=WINDUP timer=0.1 hitApplied=false
+State=WINDUP timer=0.11666667 hitApplied=false
+State=WINDUP timer=0.13333334 hitApplied=false
+State=WINDUP timer=0.15 hitApplied=false
+State=WINDUP timer=0.16666667 hitApplied=false
+State=WINDUP timer=0.18333334 hitApplied=false
+State=HIT timer=0.016666668 hitApplied=true
+State=HIT timer=0.033333335 hitApplied=true
+State=HIT timer=0.050000004 hitApplied=true
+State=HIT timer=0.06666667 hitApplied=true
+State=HIT timer=0.083333336 hitApplied=true
+State=HIT timer=0.1 hitApplied=true
+State=HIT timer=0.11666667 hitApplied=true
+State=HIT timer=0.13333334 hitApplied=true
+State=HIT timer=0.15 hitApplied=true
+State=HIT timer=0.16666667 hitApplied=true
+State=HIT timer=0.18333334 hitApplied=true
+State=HIT timer=0.2 hitApplied=true
+State=HIT timer=0.21666667 hitApplied=true
+State=HIT timer=0.23333333 hitApplied=true
+State=HIT timer=0.25 hitApplied=true
+State=HIT timer=0.26666668 hitApplied=true
+State=HIT timer=0.28333336 hitApplied=true
+State=HIT timer=0.30000004 hitApplied=true
+State=HIT timer=0.31666672 hitApplied=true
+State=HIT timer=0.3333334 hitApplied=true
+State=HIT timer=0.35000008 hitApplied=true
+State=HIT timer=0.36666676 hitApplied=true
+State=HIT timer=0.38333344 hitApplied=true
+State=HIT timer=0.40000013 hitApplied=true
+State=HIT timer=0.4166668 hitApplied=true
+State=HIT timer=0.4333335 hitApplied=true
+State=HIT timer=0.45000017 hitApplied=true
+State=HIT timer=0.46666685 hitApplied=true
+State=HIT timer=0.48333353 hitApplied=true
+State=HIT timer=0.5000002 hitApplied=true
+State=HIT timer=0.5166668 hitApplied=true
+State=RECOVERY timer=0.016666668 hitApplied=true
+State=RECOVERY timer=0.033333335 hitApplied=true
+State=RECOVERY timer=0.050000004 hitApplied=true
+State=RECOVERY timer=0.06666667 hitApplied=true
+State=RECOVERY timer=0.083333336 hitApplied=true
+State=RECOVERY timer=0.1 hitApplied=true
+State=RECOVERY timer=0.11666667 hitApplied=true
+State=RECOVERY timer=0.13333334 hitApplied=true
+State=RECOVERY timer=0.15 hitApplied=true
+State=RECOVERY timer=0.16666667 hitApplied=true
+State=RECOVERY timer=0.18333334 hitApplied=true
+State=RECOVERY timer=0.2 hitApplied=true
+State=RECOVERY timer=0.21666667 hitApplied=true
+State=RECOVERY timer=0.23333333 hitApplied=true
+State=RECOVERY timer=0.25 hitApplied=true
+State=RECOVERY timer=0.26666668 hitApplied=true
+State=RECOVERY timer=0.28333336 hitApplied=true
+State=RECOVERY timer=0.30000004 hitApplied=true
+State=RECOVERY timer=0.31666672 hitApplied=true
+State=RECOVERY timer=0.3333334 hitApplied=true
+State=RECOVERY timer=0.35000008 hitApplied=true
+State=IDLE timer=0.016666668 hitApplied=false
+State=WINDUP timer=0.016666668 hitApplied=false
+State=WINDUP timer=0.033333335 hitApplied=false
+State=WINDUP timer=0.050000004 hitApplied=false
+State=WINDUP timer=0.06666667 hitApplied=false
+State=WINDUP timer=0.083333336 hitApplied=false
+State=WINDUP timer=0.1 hitApplied=false
+State=WINDUP timer=0.11666667 hitApplied=false
+State=WINDUP timer=0.13333334 hitApplied=false
+State=WINDUP timer=0.15 hitApplied=false
+State=WINDUP timer=0.16666667 hitApplied=false
+State=WINDUP timer=0.18333334 hitApplied=false
+State=HIT timer=0.016666668 hitApplied=false
+State=HIT timer=0.033333335 hitApplied=true
+State=HIT timer=0.050000004 hitApplied=true
+State=HIT timer=0.06666667 hitApplied=true
+State=HIT timer=0.083333336 hitApplied=true
+State=HIT timer=0.1 hitApplied=true
+State=HIT timer=0.11666667 hitApplied=true
+State=HIT timer=0.13333334 hitApplied=true
+State=HIT timer=0.15 hitApplied=true
+State=HIT timer=0.16666667 hitApplied=true
+State=HIT timer=0.18333334 hitApplied=true
+State=HIT timer=0.2 hitApplied=true
+State=HIT timer=0.21666667 hitApplied=true
+State=HIT timer=0.23333333 hitApplied=true
+State=HIT timer=0.25 hitApplied=true
+State=HIT timer=0.26666668 hitApplied=true
+State=HIT timer=0.28333336 hitApplied=true
+State=HIT timer=0.30000004 hitApplied=true
+State=HIT timer=0.31666672 hitApplied=true
+State=HIT timer=0.3333334 hitApplied=true
+State=HIT timer=0.35000008 hitApplied=true
+State=HIT timer=0.36666676 hitApplied=true
+State=HIT timer=0.38333344 hitApplied=true
+State=HIT timer=0.40000013 hitApplied=true
+State=HIT timer=0.4166668 hitApplied=true
+State=HIT timer=0.4333335 hitApplied=true
+State=HIT timer=0.45000017 hitApplied=true
+State=HIT timer=0.46666685 hitApplied=true
+State=HIT timer=0.48333353 hitApplied=true
+State=HIT timer=0.5000002 hitApplied=true
+State=HIT timer=0.5166668 hitApplied=true
+State=RECOVERY timer=0.016666668 hitApplied=true
+State=RECOVERY timer=0.033333335 hitApplied=true
+State=RECOVERY timer=0.050000004 hitApplied=true
+State=RECOVERY timer=0.06666667 hitApplied=true
+State=RECOVERY timer=0.083333336 hitApplied=true
+State=RECOVERY timer=0.1 hitApplied=true
+State=RECOVERY timer=0.11666667 hitApplied=true
+State=RECOVERY timer=0.13333334 hitApplied=true
+State=RECOVERY timer=0.15 hitApplied=true
+State=RECOVERY timer=0.16666667 hitApplied=true
+State=RECOVERY timer=0.18333334 hitApplied=true
+State=RECOVERY timer=0.2 hitApplied=true
+State=RECOVERY timer=0.21666667 hitApplied=true
+State=RECOVERY timer=0.23333333 hitApplied=true
+State=RECOVERY timer=0.25 hitApplied=true
+State=RECOVERY timer=0.26666668 hitApplied=true
+State=RECOVERY timer=0.28333336 hitApplied=true
+State=RECOVERY timer=0.30000004 hitApplied=true
+State=RECOVERY timer=0.31666672 hitApplied=true
+State=RECOVERY timer=0.3333334 hitApplied=true
+State=RECOVERY timer=0.35000008 hitApplied=true
+State=IDLE timer=0.016666668 hitApplied=false
+State=WINDUP timer=0.016666668 hitApplied=false
+State=WINDUP timer=0.033333335 hitApplied=false
+State=WINDUP timer=0.050000004 hitApplied=false
+State=WINDUP timer=0.06666667 hitApplied=false
+State=WINDUP timer=0.083333336 hitApplied=false
+State=WINDUP timer=0.1 hitApplied=false
+State=WINDUP timer=0.11666667 hitApplied=false
+State=WINDUP timer=0.13333334 hitApplied=false
+State=WINDUP timer=0.15 hitApplied=false
+State=WINDUP timer=0.16666667 hitApplied=false
+State=WINDUP timer=0.18333334 hitApplied=false
+State=HIT timer=0.016666668 hitApplied=true
+State=HIT timer=0.033333335 hitApplied=true
+State=HIT timer=0.050000004 hitApplied=true
+State=HIT timer=0.06666667 hitApplied=true
+State=HIT timer=0.083333336 hitApplied=true
+State=HIT timer=0.1 hitApplied=true
+State=HIT timer=0.11666667 hitApplied=true
+State=HIT timer=0.13333334 hitApplied=true
+State=HIT timer=0.15 hitApplied=true
+State=HIT timer=0.16666667 hitApplied=true
+State=HIT timer=0.18333334 hitApplied=true
+State=HIT timer=0.2 hitApplied=true
+State=HIT timer=0.21666667 hitApplied=true
+State=HIT timer=0.23333333 hitApplied=true
+State=HIT timer=0.25 hitApplied=true
+State=HIT timer=0.26666668 hitApplied=true
+State=HIT timer=0.28333336 hitApplied=true
+State=HIT timer=0.30000004 hitApplied=true
+State=HIT timer=0.31666672 hitApplied=true
+State=HIT timer=0.3333334 hitApplied=true
+State=HIT timer=0.35000008 hitApplied=true
+State=HIT timer=0.36666676 hitApplied=true
+State=HIT timer=0.38333344 hitApplied=true
+State=HIT timer=0.40000013 hitApplied=true
+State=HIT timer=0.4166668 hitApplied=true
+State=HIT timer=0.4333335 hitApplied=true
+State=HIT timer=0.45000017 hitApplied=true
+State=HIT timer=0.46666685 hitApplied=true
+State=HIT timer=0.48333353 hitApplied=true
+State=HIT timer=0.5000002 hitApplied=true
+State=HIT timer=0.5166668 hitApplied=true
+State=RECOVERY timer=0.016666668 hitApplied=true
+State=RECOVERY timer=0.033333335 hitApplied=true
+State=RECOVERY timer=0.050000004 hitApplied=true
+State=RECOVERY timer=0.06666667 hitApplied=true
+State=RECOVERY timer=0.083333336 hitApplied=true
+State=RECOVERY timer=0.1 hitApplied=true
+State=RECOVERY timer=0.11666667 hitApplied=true
+State=RECOVERY timer=0.13333334 hitApplied=true
+State=RECOVERY timer=0.15 hitApplied=true
+State=RECOVERY timer=0.16666667 hitApplied=true
+State=RECOVERY timer=0.18333334 hitApplied=true
+State=RECOVERY timer=0.2 hitApplied=true
+State=RECOVERY timer=0.21666667 hitApplied=true
+State=RECOVERY timer=0.23333333 hitApplied=true
+State=RECOVERY timer=0.25 hitApplied=true
+State=RECOVERY timer=0.26666668 hitApplied=true
+State=RECOVERY timer=0.28333336 hitApplied=true
+State=RECOVERY timer=0.30000004 hitApplied=true
+State=RECOVERY timer=0.31666672 hitApplied=true
+State=RECOVERY timer=0.3333334 hitApplied=true
+State=RECOVERY timer=0.35000008 hitApplied=true
+State=IDLE timer=0.016666668 hitApplied=false
+State=WINDUP timer=0.016666668 hitApplied=false
+State=WINDUP timer=0.033333335 hitApplied=false
+State=WINDUP timer=0.050000004 hitApplied=false
+State=WINDUP timer=0.06666667 hitApplied=false
+State=WINDUP timer=0.083333336 hitApplied=false
+State=WINDUP timer=0.1 hitApplied=false
+State=WINDUP timer=0.11666667 hitApplied=false
+State=WINDUP timer=0.13333334 hitApplied=false
+State=WINDUP timer=0.15 hitApplied=false
+State=WINDUP timer=0.16666667 hitApplied=false
+State=WINDUP timer=0.18333334 hitApplied=false
+State=HIT timer=0.016666668 hitApplied=true
+State=HIT timer=0.033333335 hitApplied=true
+State=HIT timer=0.050000004 hitApplied=true
+State=HIT timer=0.06666667 hitApplied=true
+State=HIT timer=0.083333336 hitApplied=true
+State=HIT timer=0.1 hitApplied=true
+State=HIT timer=0.11666667 hitApplied=true
+State=HIT timer=0.13333334 hitApplied=true
+State=HIT timer=0.15 hitApplied=true
+State=HIT timer=0.16666667 hitApplied=true
+State=HIT timer=0.18333334 hitApplied=true
+State=HIT timer=0.2 hitApplied=true
+State=HIT timer=0.21666667 hitApplied=true
+State=HIT timer=0.23333333 hitApplied=true
+State=HIT timer=0.25 hitApplied=true
+State=HIT timer=0.26666668 hitApplied=true
+State=HIT timer=0.28333336 hitApplied=true
+State=HIT timer=0.30000004 hitApplied=true
+State=HIT timer=0.31666672 hitApplied=true
+State=HIT timer=0.3333334 hitApplied=true
+State=HIT timer=0.35000008 hitApplied=true
+State=HIT timer=0.36666676 hitApplied=true
+State=HIT timer=0.38333344 hitApplied=true
+State=HIT timer=0.40000013 hitApplied=true
+State=HIT timer=0.4166668 hitApplied=true
+State=HIT timer=0.4333335 hitApplied=true
+State=HIT timer=0.45000017 hitApplied=true
+State=HIT timer=0.46666685 hitApplied=true
+State=HIT timer=0.48333353 hitApplied=true
+State=HIT timer=0.5000002 hitApplied=true
+State=HIT timer=0.5166668 hitApplied=true
+State=RECOVERY timer=0.016666668 hitApplied=true
+State=RECOVERY timer=0.033333335 hitApplied=true
+State=RECOVERY timer=0.050000004 hitApplied=true
+State=RECOVERY timer=0.06666667 hitApplied=true
+State=RECOVERY timer=0.083333336 hitApplied=true
+State=RECOVERY timer=0.1 hitApplied=true
+State=RECOVERY timer=0.11666667 hitApplied=true
+State=RECOVERY timer=0.13333334 hitApplied=true
+State=RECOVERY timer=0.15 hitApplied=true
+State=RECOVERY timer=0.16666667 hitApplied=true
+State=RECOVERY timer=0.18333334 hitApplied=true
+State=RECOVERY timer=0.2 hitApplied=true
+State=RECOVERY timer=0.21666667 hitApplied=true
+State=RECOVERY timer=0.23333333 hitApplied=true
+State=RECOVERY timer=0.25 hitApplied=true
+State=RECOVERY timer=0.26666668 hitApplied=true
+State=RECOVERY timer=0.28333336 hitApplied=true
+State=RECOVERY timer=0.30000004 hitApplied=true
+State=RECOVERY timer=0.31666672 hitApplied=true
+State=RECOVERY timer=0.3333334 hitApplied=true
+State=RECOVERY timer=0.35000008 hitApplied=true
+State=IDLE timer=0.016666668 hitApplied=false
+State=WINDUP timer=0.016666668 hitApplied=false
+State=WINDUP timer=0.033333335 hitApplied=false
+State=WINDUP timer=0.050000004 hitApplied=false
+State=WINDUP timer=0.06666667 hitApplied=false
+State=WINDUP timer=0.083333336 hitApplied=false
+State=WINDUP timer=0.1 hitApplied=false
+State=WINDUP timer=0.11666667 hitApplied=false
+State=WINDUP timer=0.13333334 hitApplied=false
+State=WINDUP timer=0.15 hitApplied=false
+State=WINDUP timer=0.16666667 hitApplied=false
+State=WINDUP timer=0.18333334 hitApplied=false
+State=HIT timer=0.016666668 hitApplied=true
+State=HIT timer=0.033333335 hitApplied=true
+State=HIT timer=0.050000004 hitApplied=true
+State=HIT timer=0.06666667 hitApplied=true
+State=HIT timer=0.083333336 hitApplied=true
+State=HIT timer=0.1 hitApplied=true
+State=HIT timer=0.11666667 hitApplied=true
+State=HIT timer=0.13333334 hitApplied=true
+State=HIT timer=0.15 hitApplied=true
+State=HIT timer=0.16666667 hitApplied=true
+State=HIT timer=0.18333334 hitApplied=true
+State=HIT timer=0.2 hitApplied=true
+State=HIT timer=0.21666667 hitApplied=true
+State=HIT timer=0.23333333 hitApplied=true
+State=HIT timer=0.25 hitApplied=true
+State=HIT timer=0.26666668 hitApplied=true
+State=HIT timer=0.28333336 hitApplied=true
+State=HIT timer=0.30000004 hitApplied=true
+State=HIT timer=0.31666672 hitApplied=true
+State=HIT timer=0.3333334 hitApplied=true
+State=HIT timer=0.35000008 hitApplied=true
+State=HIT timer=0.36666676 hitApplied=true
+State=HIT timer=0.38333344 hitApplied=true
+State=HIT timer=0.40000013 hitApplied=true
+State=HIT timer=0.4166668 hitApplied=true
+State=HIT timer=0.4333335 hitApplied=true
+State=HIT timer=0.45000017 hitApplied=true
+State=HIT timer=0.46666685 hitApplied=true
+State=HIT timer=0.48333353 hitApplied=true
+State=HIT timer=0.5000002 hitApplied=true
+State=HIT timer=0.5166668 hitApplied=true
+State=RECOVERY timer=0.016666668 hitApplied=true
+State=RECOVERY timer=0.033333335 hitApplied=true
+State=RECOVERY timer=0.050000004 hitApplied=true
+State=RECOVERY timer=0.06666667 hitApplied=true
+State=RECOVERY timer=0.083333336 hitApplied=true
+State=RECOVERY timer=0.1 hitApplied=true
+State=RECOVERY timer=0.11666667 hitApplied=true
+State=RECOVERY timer=0.13333334 hitApplied=true
+State=RECOVERY timer=0.15 hitApplied=true
+State=RECOVERY timer=0.16666667 hitApplied=true
+State=RECOVERY timer=0.18333334 hitApplied=true
+State=RECOVERY timer=0.2 hitApplied=true
+State=RECOVERY timer=0.21666667 hitApplied=true
+State=RECOVERY timer=0.23333333 hitApplied=true
+State=RECOVERY timer=0.25 hitApplied=true
+State=RECOVERY timer=0.26666668 hitApplied=true
+State=RECOVERY timer=0.28333336 hitApplied=true
+State=RECOVERY timer=0.30000004 hitApplied=true
+State=RECOVERY timer=0.31666672 hitApplied=true
+State=RECOVERY timer=0.3333334 hitApplied=true
+State=RECOVERY timer=0.35000008 hitApplied=true
+State=IDLE timer=0.016666668 hitApplied=false
+State=WINDUP timer=0.016666668 hitApplied=false
+State=WINDUP timer=0.033333335 hitApplied=false
+State=WINDUP timer=0.050000004 hitApplied=false
+State=WINDUP timer=0.06666667 hitApplied=false
+State=WINDUP timer=0.083333336 hitApplied=false
+State=WINDUP timer=0.1 hitApplied=false
+State=WINDUP timer=0.11666667 hitApplied=false
+State=WINDUP timer=0.13333334 hitApplied=false
+State=WINDUP timer=0.15 hitApplied=false
+State=WINDUP timer=0.16666667 hitApplied=false
+State=WINDUP timer=0.18333334 hitApplied=false
+State=HIT timer=0.016666668 hitApplied=true
+State=HIT timer=0.033333335 hitApplied=true
+State=HIT timer=0.050000004 hitApplied=true
+State=HIT timer=0.06666667 hitApplied=true
+State=HIT timer=0.083333336 hitApplied=true
+State=HIT timer=0.1 hitApplied=true
+State=HIT timer=0.11666667 hitApplied=true
+State=HIT timer=0.13333334 hitApplied=true
+State=HIT timer=0.15 hitApplied=true
+State=HIT timer=0.16666667 hitApplied=true
+State=HIT timer=0.18333334 hitApplied=true
+State=HIT timer=0.2 hitApplied=true
+State=HIT timer=0.21666667 hitApplied=true
+State=HIT timer=0.23333333 hitApplied=true
+State=HIT timer=0.25 hitApplied=true
+State=HIT timer=0.26666668 hitApplied=true
+State=HIT timer=0.28333336 hitApplied=true
+State=HIT timer=0.30000004 hitApplied=true
+State=HIT timer=0.31666672 hitApplied=true
+State=HIT timer=0.3333334 hitApplied=true
+State=HIT timer=0.35000008 hitApplied=true
+State=HIT timer=0.36666676 hitApplied=true
+State=HIT timer=0.38333344 hitApplied=true
+State=HIT timer=0.40000013 hitApplied=true
+State=HIT timer=0.4166668 hitApplied=true
+State=HIT timer=0.4333335 hitApplied=true
+State=HIT timer=0.45000017 hitApplied=true
+State=HIT timer=0.46666685 hitApplied=true
+State=HIT timer=0.48333353 hitApplied=true
+State=HIT timer=0.5000002 hitApplied=true
+State=HIT timer=0.5166668 hitApplied=true
+State=RECOVERY timer=0.016666668 hitApplied=true
+State=RECOVERY timer=0.033333335 hitApplied=true
+State=RECOVERY timer=0.050000004 hitApplied=true
+State=RECOVERY timer=0.06666667 hitApplied=true
+State=RECOVERY timer=0.083333336 hitApplied=true
+State=RECOVERY timer=0.1 hitApplied=true
+State=RECOVERY timer=0.11666667 hitApplied=true
+State=RECOVERY timer=0.13333334 hitApplied=true
+State=RECOVERY timer=0.15 hitApplied=true
+State=RECOVERY timer=0.16666667 hitApplied=true
+State=RECOVERY timer=0.18333334 hitApplied=true
+State=RECOVERY timer=0.2 hitApplied=true
+State=RECOVERY timer=0.21666667 hitApplied=true
+State=RECOVERY timer=0.23333333 hitApplied=true
+State=RECOVERY timer=0.25 hitApplied=true
+State=RECOVERY timer=0.26666668 hitApplied=true
+State=RECOVERY timer=0.28333336 hitApplied=true
+State=RECOVERY timer=0.30000004 hitApplied=true
+State=RECOVERY timer=0.31666672 hitApplied=true
+State=RECOVERY timer=0.3333334 hitApplied=true
+State=RECOVERY timer=0.35000008 hitApplied=true
+State=IDLE timer=0.016666668 hitApplied=false
+State=WINDUP timer=0.016666668 hitApplied=false
+State=WINDUP timer=0.033333335 hitApplied=false
+State=WINDUP timer=0.050000004 hitApplied=false
+State=WINDUP timer=0.06666667 hitApplied=false
+State=WINDUP timer=0.083333336 hitApplied=false
+State=WINDUP timer=0.1 hitApplied=false
+State=WINDUP timer=0.11666667 hitApplied=false
+State=WINDUP timer=0.13333334 hitApplied=false
+State=WINDUP timer=0.15 hitApplied=false
+State=WINDUP timer=0.16666667 hitApplied=false
+State=WINDUP timer=0.18333334 hitApplied=false
+State=HIT timer=0.016666668 hitApplied=true
+State=HIT timer=0.033333335 hitApplied=true
+State=HIT timer=0.050000004 hitApplied=true
+State=HIT timer=0.06666667 hitApplied=true
+State=HIT timer=0.083333336 hitApplied=true
+State=HIT timer=0.1 hitApplied=true
+State=HIT timer=0.11666667 hitApplied=true
+State=HIT timer=0.13333334 hitApplied=true
+State=HIT timer=0.15 hitApplied=true
+State=HIT timer=0.16666667 hitApplied=true
+State=HIT timer=0.18333334 hitApplied=true
+State=HIT timer=0.2 hitApplied=true
+State=HIT timer=0.21666667 hitApplied=true
+State=HIT timer=0.23333333 hitApplied=true
+State=HIT timer=0.25 hitApplied=true
+State=HIT timer=0.26666668 hitApplied=true
+State=HIT timer=0.28333336 hitApplied=true
+State=HIT timer=0.30000004 hitApplied=true
+State=HIT timer=0.31666672 hitApplied=true
+State=HIT timer=0.3333334 hitApplied=true
+State=HIT timer=0.35000008 hitApplied=true
+State=HIT timer=0.36666676 hitApplied=true
+State=HIT timer=0.38333344 hitApplied=true
+State=HIT timer=0.40000013 hitApplied=true
+State=HIT timer=0.4166668 hitApplied=true
+State=HIT timer=0.4333335 hitApplied=true
+State=HIT timer=0.45000017 hitApplied=true
+State=HIT timer=0.46666685 hitApplied=true
+State=HIT timer=0.48333353 hitApplied=true
+State=HIT timer=0.5000002 hitApplied=true
+State=HIT timer=0.5166668 hitApplied=true
+State=RECOVERY timer=0.016666668 hitApplied=true
+State=RECOVERY timer=0.033333335 hitApplied=true
+State=RECOVERY timer=0.050000004 hitApplied=true
+State=RECOVERY timer=0.06666667 hitApplied=true
+State=RECOVERY timer=0.083333336 hitApplied=true
+State=RECOVERY timer=0.1 hitApplied=true
+State=RECOVERY timer=0.11666667 hitApplied=true
+State=RECOVERY timer=0.13333334 hitApplied=true
+State=RECOVERY timer=0.15 hitApplied=true
+State=RECOVERY timer=0.16666667 hitApplied=true
+State=RECOVERY timer=0.18333334 hitApplied=true
+State=RECOVERY timer=0.2 hitApplied=true
+State=RECOVERY timer=0.21666667 hitApplied=true
+State=RECOVERY timer=0.23333333 hitApplied=true
+State=RECOVERY timer=0.25 hitApplied=true
+State=RECOVERY timer=0.26666668 hitApplied=true
+State=RECOVERY timer=0.28333336 hitApplied=true
+State=RECOVERY timer=0.30000004 hitApplied=true
+State=RECOVERY timer=0.31666672 hitApplied=true
+State=RECOVERY timer=0.3333334 hitApplied=true
+State=RECOVERY timer=0.35000008 hitApplied=true
+State=IDLE timer=0.016666668 hitApplied=false
+State=WINDUP timer=0.016666668 hitApplied=false
+State=WINDUP timer=0.033333335 hitApplied=false
+State=WINDUP timer=0.050000004 hitApplied=false
+State=WINDUP timer=0.06666667 hitApplied=false
+State=WINDUP timer=0.083333336 hitApplied=false
+State=WINDUP timer=0.1 hitApplied=false
+State=WINDUP timer=0.11666667 hitApplied=false
+State=WINDUP timer=0.13333334 hitApplied=false
+State=WINDUP timer=0.15 hitApplied=false
+State=WINDUP timer=0.16666667 hitApplied=false
+State=WINDUP timer=0.18333334 hitApplied=false
+State=HIT timer=0.016666668 hitApplied=true
+State=HIT timer=0.033333335 hitApplied=true
+State=HIT timer=0.050000004 hitApplied=true
+State=HIT timer=0.06666667 hitApplied=true
+State=HIT timer=0.083333336 hitApplied=true
+State=HIT timer=0.1 hitApplied=true
+State=HIT timer=0.11666667 hitApplied=true
+State=HIT timer=0.13333334 hitApplied=true
+State=HIT timer=0.15 hitApplied=true
+State=HIT timer=0.16666667 hitApplied=true
+State=HIT timer=0.18333334 hitApplied=true
+State=HIT timer=0.2 hitApplied=true
+State=HIT timer=0.21666667 hitApplied=true
+State=HIT timer=0.23333333 hitApplied=true
+State=HIT timer=0.25 hitApplied=true
+State=HIT timer=0.26666668 hitApplied=true
+State=HIT timer=0.28333336 hitApplied=true
+State=HIT timer=0.30000004 hitApplied=true
+State=HIT timer=0.31666672 hitApplied=true
+State=HIT timer=0.3333334 hitApplied=true
+State=HIT timer=0.35000008 hitApplied=true
+State=HIT timer=0.36666676 hitApplied=true
+State=HIT timer=0.38333344 hitApplied=true
+State=HIT timer=0.40000013 hitApplied=true
+State=HIT timer=0.4166668 hitApplied=true
+State=HIT timer=0.4333335 hitApplied=true
+State=HIT timer=0.45000017 hitApplied=true
+State=HIT timer=0.46666685 hitApplied=true
+State=HIT timer=0.48333353 hitApplied=true
+State=HIT timer=0.5000002 hitApplied=true
+State=HIT timer=0.5166668 hitApplied=true
+State=RECOVERY timer=0.016666668 hitApplied=true
+State=RECOVERY timer=0.033333335 hitApplied=true
+State=RECOVERY timer=0.050000004 hitApplied=true
+State=RECOVERY timer=0.06666667 hitApplied=true
+State=RECOVERY timer=0.083333336 hitApplied=true
+State=RECOVERY timer=0.1 hitApplied=true
+State=RECOVERY timer=0.11666667 hitApplied=true
+State=RECOVERY timer=0.13333334 hitApplied=true
+State=RECOVERY timer=0.15 hitApplied=true
+State=RECOVERY timer=0.16666667 hitApplied=true
+State=RECOVERY timer=0.18333334 hitApplied=true
+State=RECOVERY timer=0.2 hitApplied=true
+State=RECOVERY timer=0.21666667 hitApplied=true
+State=RECOVERY timer=0.23333333 hitApplied=true
+State=RECOVERY timer=0.25 hitApplied=true
+State=RECOVERY timer=0.26666668 hitApplied=true
+State=RECOVERY timer=0.28333336 hitApplied=true
+State=RECOVERY timer=0.30000004 hitApplied=true
+State=RECOVERY timer=0.31666672 hitApplied=true
+State=RECOVERY timer=0.3333334 hitApplied=true
+State=RECOVERY timer=0.35000008 hitApplied=true
+State=IDLE timer=0.016666668 hitApplied=false
+State=WINDUP timer=0.016666668 hitApplied=false
+State=WINDUP timer=0.033333335 hitApplied=false
+State=WINDUP timer=0.050000004 hitApplied=false
+State=WINDUP timer=0.06666667 hitApplied=false
+State=WINDUP timer=0.083333336 hitApplied=false
+State=WINDUP timer=0.1 hitApplied=false
+State=WINDUP timer=0.11666667 hitApplied=false
+State=WINDUP timer=0.13333334 hitApplied=false
+State=WINDUP timer=0.15 hitApplied=false
+State=WINDUP timer=0.16666667 hitApplied=false
+State=WINDUP timer=0.18333334 hitApplied=false
+State=HIT timer=0.016666668 hitApplied=true
+State=HIT timer=0.033333335 hitApplied=true
+State=HIT timer=0.050000004 hitApplied=true
+State=HIT timer=0.06666667 hitApplied=true
+State=HIT timer=0.083333336 hitApplied=true
+State=HIT timer=0.1 hitApplied=true
+State=HIT timer=0.11666667 hitApplied=true
+State=HIT timer=0.13333334 hitApplied=true
+State=HIT timer=0.15 hitApplied=true
+State=HIT timer=0.16666667 hitApplied=true
+State=HIT timer=0.18333334 hitApplied=true
+State=HIT timer=0.2 hitApplied=true
+State=HIT timer=0.21666667 hitApplied=true
+State=HIT timer=0.23333333 hitApplied=true
+State=HIT timer=0.25 hitApplied=true
+State=HIT timer=0.26666668 hitApplied=true
+State=HIT timer=0.28333336 hitApplied=true
+State=HIT timer=0.30000004 hitApplied=true
+State=HIT timer=0.31666672 hitApplied=true
+State=HIT timer=0.3333334 hitApplied=true
+State=HIT timer=0.35000008 hitApplied=true
+State=HIT timer=0.36666676 hitApplied=true
+State=HIT timer=0.38333344 hitApplied=true
