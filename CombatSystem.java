@@ -1,5 +1,3 @@
-package demo.main;
-
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,9 +12,6 @@ public class CombatSystem {
         List<Entity> toRemove = new ArrayList<>();
         List<Entity> toAdd = new ArrayList<>();
 
-        // ---------------------------------------------------------
-        // 1. Handle cooldowns and attack attempts
-        // ---------------------------------------------------------
         for (Entity attacker : entities) {
 
             Health ah = attacker.getComponent(Health.class);
@@ -29,19 +24,14 @@ public class CombatSystem {
             if (atk == null || af == null || acc == null)
                 continue;
 
-            // ---------------------------------------------------------
-            // CurrentTarget (NO auto-targeting anymore)
-            // ---------------------------------------------------------
             CurrentTarget ct = attacker.getComponent(CurrentTarget.class);
             if (ct == null) {
                 ct = new CurrentTarget(null);
                 attacker.addComponent(ct);
             }
 
-            // If no target → do nothing
             if (ct.target == null) continue;
 
-            // If target is dead → clear target
             Health th = ct.target.getComponent(Health.class);
             if (th == null || th.current <= 0) {
                 ct.target = null;
@@ -49,48 +39,31 @@ public class CombatSystem {
             }
 
             // ---------------------------------------------------------
-            // Attack cooldown
+            // ⭐ NEW: Only apply damage during HIT state
             // ---------------------------------------------------------
-            AttackCoolDown acd = attacker.getComponent(AttackCoolDown.class);
-            if (acd == null) {
-                acd = new AttackCoolDown(1f);
-                attacker.addComponent(acd);
+            AttackState as = attacker.getComponent(AttackState.class);
+            if (as == null || as.state != AttackState.AttackStateType.HIT) {
+                continue; // not in HIT → skip all damage
             }
-          /*
-            //for debugging
-        	EntityAnimation animComp = attacker.getComponent(EntityAnimation.class);
-        	Animation anim = animComp.getAnimation();  
-            System.out.println("ID: "+ attacker.race +" CD: " + acd.cooldown + " | frame: " + anim.currentFrame);
-          */
-            acd.cooldown -= delta;
-            
-            
-            if (acd.cooldown > 0f) continue;
 
-            acd.cooldown = 1f / acd.attackSpeed;
-           
             // ---------------------------------------------------------
-            // 2. Check collision hits for this attacker
+            // 2. Process hit events for this attacker
             // ---------------------------------------------------------
             for (HitDetectionSystem.HitEvent event : hits) {
-            	 
-                if (event.attacker != attacker) continue;
 
-                // Only attack the chosen target
-                if (event.target != ct.target) continue; 
-                attackTarget(attacker, ct.target, toRemove, toAdd); 
+                if (event.attacker != attacker) continue;
+                if (event.target != ct.target) continue;
+
+                attackTarget(attacker, ct.target, toRemove, toAdd);
             }
         }
 
-        // ---------------------------------------------------------
-        // 3. Apply entity removal and additions
-        // ---------------------------------------------------------
         entities.addAll(toAdd);
         entities.removeAll(toRemove);
     }
 
     // -------------------------------------------------------------
-    // Attack logic (unchanged from your original version)
+    // Attack logic (now synced with AttackStateSystem)
     // -------------------------------------------------------------
     private void attackTarget(Entity attacker,
                               Entity target,
@@ -106,6 +79,16 @@ public class CombatSystem {
 
         if (th == null || ev == null || def == null) return;
 
+        AttackState as = attacker.getComponent(AttackState.class);
+        if (as == null) return;
+
+        // ---------------------------------------------------------
+        // ⭐ Prevent multiple hits during the same attack animation
+        // ---------------------------------------------------------
+        if (as.hitApplied) {
+            return;
+        }
+
         // ---------------------------------------------------------
         // HIT CHANCE
         // ---------------------------------------------------------
@@ -116,6 +99,7 @@ public class CombatSystem {
 
         if (roll > hitChance) {
             spawnDamageText(target, "miss", toAdd, false);
+            as.hitApplied = true; // still counts as a hit attempt
             return;
         }
 
@@ -144,17 +128,14 @@ public class CombatSystem {
 
         // ---------------------------------------------------------
         // APPLY DAMAGE
-        // ---------------------------------------------------------        
-//        AttackCycle cycle = attacker.getComponent(AttackCycle.class);
-//        if(cycle != null && cycle.hasHit) return; //already hit cycle
-//        
+        // ---------------------------------------------------------
         th.damage(finalDamage);
 
-        
+        // ⭐ Mark that this attack has already hit
+        as.hitApplied = true;
+
         spawnDamageText(target, String.valueOf(finalDamage), toAdd, isCrit);
-//        if(cycle != null) {
-//        	cycle.hasHit = true;
-//        }
+
         // ---------------------------------------------------------
         // DEATH HANDLING
         // ---------------------------------------------------------
@@ -168,29 +149,23 @@ public class CombatSystem {
         }
     }
 
-    // -------------------------------------------------------------
-    // Damage text (your original version)
-    // -------------------------------------------------------------
     private void spawnDamageText(Entity target,
                                  String text,
                                  List<Entity> toAdd,
                                  boolean isCrit) {
 
         Position tp = target.getComponent(Position.class);
-
-        //get collision box of target        
         Collision col = target.getComponent(Collision.class);
-        
+
         double x = tp.x + col.offsetX;
         double y = tp.y + col.offsetY;
-        
-        int w = col.width; //32;
-        int h = col.height; //32;
+
+        int w = col.width;
+        int h = col.height;
 
         int offsetX = ThreadLocalRandom.current().nextInt(0, w);
         int offsetY = ThreadLocalRandom.current().nextInt(0, h);
 
-        
         Entity textEntity = new Entity();
         textEntity.addComponent(new Position(x, y));
 
