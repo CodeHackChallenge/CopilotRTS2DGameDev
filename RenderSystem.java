@@ -14,46 +14,45 @@ public class RenderSystem {
             Position pos = e.getComponent(Position.class);
             if (pos == null) continue;
 
-            // ---------------------------------------------------------
-            // DRAW ANIMATION FRAME
-            // ---------------------------------------------------------
+            // =========================================================
+            // 1. DRAW SPRITE / ANIMATION
+            // =========================================================
             EntityAnimation animComp = e.getComponent(EntityAnimation.class);
             if (animComp != null) {
 
                 Animation anim = animComp.getAnimation();
-                if (anim != null) {
+                if (anim != null && anim.frames != null) {
 
-                    BufferedImage frame = anim.getFrame();
+                    BufferedImage frame = anim.frames[anim.currentFrame];
                     if (frame != null) {
-                        g.drawImage(frame, (int) pos.x - 5, (int) pos.y, null);
+                        g.drawImage(frame, (int) pos.x, (int) pos.y, null);
                     }
                 }
             }
 
-            // ---------------------------------------------------------
-            // DRAW DAMAGE TEXT
-            // ---------------------------------------------------------
+            // =========================================================
+            // 2. DRAW DAMAGE TEXT (always above sprite)
+            // =========================================================
             DamageTextComponent dt = e.getComponent(DamageTextComponent.class);
-            if (dt != null) {
-                RenderTextComponent rtc = e.getComponent(RenderTextComponent.class);
-                if (rtc != null) {
-                    g.setColor(rtc.color);
-                    g.setFont(rtc.font);
+            RenderTextComponent rtc = e.getComponent(RenderTextComponent.class);
 
-                    int drawX = (int) (pos.x + dt.offsetX);
-                    int drawY = (int) (pos.y + dt.offsetY);
+            if (dt != null && rtc != null) {
 
-                    g.drawString(dt.text, drawX, drawY);
-                }
+                g.setColor(rtc.color);
+                g.setFont(rtc.font);
+
+                int drawX = (int) (pos.x + dt.offsetX);
+                int drawY = (int) (pos.y + dt.offsetY);
+
+                g.drawString(dt.text, drawX, drawY);
             }
 
-            // ---------------------------------------------------------
-            // DEBUG: DRAW COLLISION BOX
-            // ---------------------------------------------------------
-          //  /*
+            // =========================================================
+            // 3. DEBUG: COLLISION BOX
+            // =========================================================
             Collision col = e.getComponent(Collision.class);
             if (col != null) {
-                g.setColor(Color.GREEN);
+                g.setColor(new Color(0, 255, 0, 120)); // semi‑transparent green
                 g.drawRect(
                     (int) (pos.x + col.offsetX),
                     (int) (pos.y + col.offsetY),
@@ -62,13 +61,12 @@ public class RenderSystem {
                 );
             }
 
-            // ---------------------------------------------------------
-            // DEBUG: DRAW ATTACK HITBOX
-            // ---------------------------------------------------------
+            // =========================================================
+            // 4. DEBUG: ATTACK HITBOX
+            // =========================================================
             AttackHitbox hit = e.getComponent(AttackHitbox.class);
-            
             if (hit != null && hit.width > 0 && hit.height > 0) {
-                g.setColor(Color.RED);
+                g.setColor(new Color(255, 0, 0, 120)); // semi‑transparent red
                 g.drawRect(
                     (int) (pos.x + hit.offsetX),
                     (int) (pos.y + hit.offsetY),
@@ -76,7 +74,6 @@ public class RenderSystem {
                     hit.height
                 );
             }
-           // */
         }
     }
 }
