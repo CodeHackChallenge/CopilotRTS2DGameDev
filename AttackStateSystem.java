@@ -1,5 +1,13 @@
+package demo.main;
+
+import java.util.List;
+
+import demo.main.AttackState.AttackStateType;
+
 public class AttackStateSystem {
 
+	public static boolean DEBUG_FPRCE_ATTACK = false;
+	
     public void update(List<Entity> entities, float delta) {
 
         for (Entity e : entities) {
@@ -10,12 +18,26 @@ public class AttackStateSystem {
             CurrentTarget ct = e.getComponent(CurrentTarget.class);
 
             if (as == null || ap == null || acd == null) continue;
-
+            
             as.timer += delta;
-
+            //------------debug-------------------
+            	//if(as.state == AttackStateType.HIT) {
+            		//System.out.println("DEBUG: HIT state active"); ok
+            	//}
+            //------------------------------------
             switch (as.state) {
-
+            	
                 case IDLE:
+                	//debug-----------------------------------
+	                	if(DEBUG_FPRCE_ATTACK) {
+	                		DEBUG_FPRCE_ATTACK = false;
+	                		as.state = AttackStateType.WINDUP;
+	                		//as.state = AttackStateType.HIT;
+	                		as.timer = 0f;
+	                		
+	                		System.out.println(" DEBUG: Forced at start");
+	                	} 
+                	//----------------------------------------
                     if (acd.cooldown <= 0f && ct != null && ct.target != null) {
                         as.state = AttackStateType.WINDUP;
                         as.timer = 0f;
@@ -29,7 +51,7 @@ public class AttackStateSystem {
                     }
                     break;
 
-                case HIT:
+                case HIT: //System.out.println(as.state + " id "+e.race);
                     if (as.timer >= ap.hitWindow) {
                         as.state = AttackStateType.RECOVERY;
                         as.timer = 0f;
