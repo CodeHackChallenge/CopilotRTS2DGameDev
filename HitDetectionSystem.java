@@ -1,6 +1,10 @@
+package demo.main;
+
 import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.List;
+
+import demo.main.AttackState.AttackStateType;
 
 public class HitDetectionSystem {
 
@@ -17,45 +21,61 @@ public class HitDetectionSystem {
     private final List<HitEvent> currentHits = new ArrayList<>();
 
     public void update(List<Entity> entities, float delta) {
+
         currentHits.clear();
 
         int size = entities.size();
+
         for (int i = 0; i < size; i++) {
-            Entity a = entities.get(i);
 
-            Attack attackA = a.getComponent(Attack.class);
-            Faction factionA = a.getComponent(Faction.class);
-            Collision colA = a.getComponent(Collision.class);
-            Position posA = a.getComponent(Position.class);
-            Health hpA = a.getComponent(Health.class);
+            Entity attacker = entities.get(i);
 
-            if (attackA == null || factionA == null || colA == null || posA == null || hpA == null)
-                continue;
-            if (hpA.current <= 0) continue; // dead attackers don't hit
+            // Attacker must have a weapon hitbox
+            AttackHitbox atkHit = attacker.getComponent(AttackHitbox.class);
+            if (atkHit == null) continue;
+            
+            Position posA = attacker.getComponent(Position.class);
+            Faction facA = attacker.getComponent(Faction.class);
+            Health hpA = attacker.getComponent(Health.class);
 
-            Rectangle boundsA = colA.getBounds(posA);
+            if (posA == null || facA == null || hpA == null) continue;
+            if (hpA.current <= 0) continue;
 
+            Rectangle swordBox = atkHit.getBounds(posA);
+            
+            // ---------------------------------------------------------
+            // Check all potential targets
+            // ---------------------------------------------------------
             for (int j = 0; j < size; j++) {
+
                 if (i == j) continue;
 
-                Entity b = entities.get(j);
+                Entity target = entities.get(j);
 
-                Faction factionB = b.getComponent(Faction.class);
-                Collision colB = b.getComponent(Collision.class);
-                Position posB = b.getComponent(Position.class);
-                Health hpB = b.getComponent(Health.class);
+                Collision colB = target.getComponent(Collision.class);
+                Position posB = target.getComponent(Position.class);
+                Faction facB = target.getComponent(Faction.class);
+                Health hpB = target.getComponent(Health.class);
 
-                if (factionB == null || colB == null || posB == null || hpB == null)
+                if (colB == null || posB == null || facB == null || hpB == null)
                     continue;
-                if (hpB.current <= 0) continue; // dead targets don't get hit
 
-                // Only enemies
-                if (factionA.type == factionB.type) continue;
+                if (hpB.current <= 0) continue;
 
-                Rectangle boundsB = colB.getBounds(posB);
+                // Must be enemy
+                if (facA.type == facB.type) continue;
 
-                if (boundsA.intersects(boundsB)) {
-                    currentHits.add(new HitEvent(a, b));
+                Rectangle bodyBox = colB.getBounds(posB);
+
+                // ---------------------------------------------------------
+                // Sword hitbox intersects target hurtbox
+                // ---------------------------------------------------------
+                if (swordBox.intersects(bodyBox)) { 
+                	//------------debug-------------------
+                	 // System.out.println("DEBUG: Collision detected " + attacker.ID+" -> "+target.ID);  
+                	 
+                    //------------------------------------
+                    currentHits.add(new HitEvent(attacker, target));
                 }
             }
         }
