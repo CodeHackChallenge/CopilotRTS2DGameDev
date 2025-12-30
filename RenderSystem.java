@@ -6,7 +6,8 @@ import java.awt.image.BufferedImage;
 import java.util.List;
 
 public class RenderSystem {
-
+	 
+	
     public void render(Graphics2D g, List<Entity> entities) {
 
         for (Entity e : entities) {
@@ -46,7 +47,7 @@ public class RenderSystem {
 
                 g.drawString(dt.text, drawX, drawY);
             }
-
+            
             // =========================================================
             // 3. DEBUG: COLLISION BOX
             // =========================================================
@@ -76,4 +77,6 @@ public class RenderSystem {
             }
         }
     }
+     
+    
 }

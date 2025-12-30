@@ -2,9 +2,9 @@ package demo.main;
 
 import java.awt.Rectangle;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-
-import demo.main.AttackState.AttackStateType;
+import java.util.Set;
 
 public class HitDetectionSystem {
 
@@ -22,6 +22,8 @@ public class HitDetectionSystem {
 
     public void update(List<Entity> entities, float delta) {
 
+    	//System.out.println("HitDetectionSystem UPDATE tick");
+    	
         currentHits.clear();
 
         int size = entities.size();
@@ -30,6 +32,8 @@ public class HitDetectionSystem {
 
             Entity attacker = entities.get(i);
 
+            Set<Entity> alreadyHit = new HashSet<>();
+            
             // Attacker must have a weapon hitbox
             AttackHitbox atkHit = attacker.getComponent(AttackHitbox.class);
             if (atkHit == null) continue;
@@ -70,13 +74,21 @@ public class HitDetectionSystem {
                 // ---------------------------------------------------------
                 // Sword hitbox intersects target hurtbox
                 // ---------------------------------------------------------
-                if (swordBox.intersects(bodyBox)) { 
-                	//------------debug-------------------
-                	 // System.out.println("DEBUG: Collision detected " + attacker.ID+" -> "+target.ID);  
-                	 
-                    //------------------------------------
-                    currentHits.add(new HitEvent(attacker, target));
+                if(swordBox.intersects(bodyBox)) {
+                	if(alreadyHit.contains(target)) {
+                		continue;
+                	}
+                	
+                	currentHits.add(new HitEvent(attacker, target));
+                	alreadyHit.add(target);
                 }
+//                if (swordBox.intersects(bodyBox)) { 
+//                	//------------debug-------------------
+//                	 // System.out.println("DEBUG: Collision detected " + attacker.ID+" -> "+target.ID);  
+//                	 
+//                    //------------------------------------
+//                    currentHits.add(new HitEvent(attacker, target));
+//                }
             }
         }
     }

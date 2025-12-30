@@ -6,7 +6,8 @@ import java.awt.Image;
 
 public class Sprite implements Component {
 
-	//private int width, height;
+	public int width, height;
+	public Color color;
 	private Image image;
 	
 	public Sprite(Color color, int width, int height) {

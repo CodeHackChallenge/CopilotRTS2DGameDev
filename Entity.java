@@ -5,7 +5,7 @@ import java.util.Map;
 
 public class Entity {
 	
-	private final int ID;
+	public final int ID;
 	//stores component by their type
 	private final Map<Class<? extends Component>, Component> components = new HashMap<>();
 	public final String race;

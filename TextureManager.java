@@ -1,3 +1,5 @@
+package demo.main;
+
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.HashMap;

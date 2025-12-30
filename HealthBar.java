@@ -1,3 +1,5 @@
+package demo.main;
+
 public class HealthBar implements Component {
     public int width;       // custom width
     public int height;      // custom height

@@ -55,7 +55,8 @@ public class EntityFactory {
         e.addComponent(new Accuracy(0.8f));
         e.addComponent(new AttackCoolDown(5.0f));   // attack speed
         e.addComponent(new AttackState());
-        e.addComponent(new AttackProfile(0.51f, 0.34f, 0.17f)); // windup, hit, recovery
+       // e.addComponent(new AttackProfile(0.51f, 0.34f, 0.17f)); // windup, hit, recovery
+        e.addComponent(new AttackProfile(0.34f, 0.51f, 0.17f)); // windup, hit, recovery
 
         // -----------------------------------------------------
         // COLLISION + HITBOX
@@ -76,7 +77,10 @@ public class EntityFactory {
         // -----------------------------------------------------
         e.addComponent(new Faction(Faction.Type.HERO));
         e.addComponent(new CurrentTarget());
-
+        // -----------------------------------------------------
+        // HP
+        // -----------------------------------------------------
+        e.addComponent(new HealthBar(44, 6, -10, 4));
         return e;
     }
 
@@ -106,7 +110,7 @@ public class EntityFactory {
         e.addComponent(animComp);
 
         // Collision
-        e.addComponent(new Collision(16, 34, 20, 28));
+        e.addComponent(new Collision(20, 34, 28, 28));
 
         // Stats
         e.addComponent(new Health(100));
@@ -116,7 +120,12 @@ public class EntityFactory {
         // Faction + GodMode
         e.addComponent(new Faction(Faction.Type.ENEMY));
         e.addComponent(new GodMode(GodMode.Mode.REGEN));
-
+        // -----------------------------------------------------
+        // HP
+        // -----------------------------------------------------
+        e.addComponent(new HealthBar(44, 6, -8, 4));
+        
+        
         return e;
     }
 }

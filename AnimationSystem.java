@@ -1,3 +1,8 @@
+package demo.main;
+
+import java.util.List;
+ 
+
 public class AnimationSystem {
 
     public void update(List<Entity> entities, float delta) {
@@ -21,7 +26,16 @@ public class AnimationSystem {
                     anim.currentFrame = 0;
                 }
             }
-
+            // ---------------------------------------------------------
+            // Frame-based hit trigger sync hit state to animation
+            // ---------------------------------------------------------
+            AttackState as = e.getComponent(AttackState.class);
+            if(as != null && as.state == AttackState.AttackStateType.WINDUP) {
+            	if(anim.currentFrame == 3) { //impact frame
+            		as.state = AttackState.AttackStateType.HIT;
+            		as.timer = 0f;
+            	}
+            }
             // ---------------------------------------------------------
             // PER-FRAME HITBOX UPDATE (Sword hit frame logic)
             // ---------------------------------------------------------

@@ -1,3 +1,7 @@
+package demo.main;
+
+import java.awt.Rectangle;
+
 public class Collision implements Component {
 
     // Local offset from the entity's position (top-left anchor)
@@ -15,7 +19,7 @@ public class Collision implements Component {
         this.height = height;
     }
 
-    public java.awt.Rectangle getBounds(Position pos) {
+    public Rectangle getBounds(Position pos) {
         return new java.awt.Rectangle(
                 (int) pos.x + offsetX,
                 (int) pos.y + offsetY,

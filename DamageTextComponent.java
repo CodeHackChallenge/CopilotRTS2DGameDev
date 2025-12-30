@@ -10,7 +10,7 @@ public class DamageTextComponent implements Component {
 	public int offsetX;
 	public int offsetY;
 	
-	public float velocity = -120f;//-20f; //pixels per seconds
+	public float velocity = -50f;//-20f; //pixels per seconds
 	//critical hit
 	public boolean isCrit = false;
 	public float shakeIntensity = 0f;

@@ -1,3 +1,5 @@
+package demo.main;
+
 public class AttackProfile implements Component {
     public float windup;
     public float hitWindow;

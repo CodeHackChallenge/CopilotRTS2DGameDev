@@ -1,3 +1,7 @@
+package demo.main;
+
+import java.awt.image.BufferedImage;
+
 public class Animation {
     public BufferedImage[] frames;
     public int totalFrames;

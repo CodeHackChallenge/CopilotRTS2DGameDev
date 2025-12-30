@@ -1,4 +1,4 @@
-package demo.main;
+package demo.main; 
 
 import java.util.List;
 
@@ -36,6 +36,10 @@ public class AttackStateSystem {
                     if (acd.cooldown <= 0f && ct != null && ct.target != null) {
                         as.state = AttackState.AttackStateType.WINDUP;
                         as.timer = 0f;
+                        
+                        //switch to attack animation
+                        EntityAnimation anim = e.getComponent(EntityAnimation.class);
+                        if(anim != null) anim.play("attack");
                     }
                     break;
 

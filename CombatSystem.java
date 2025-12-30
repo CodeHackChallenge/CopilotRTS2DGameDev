@@ -1,3 +1,5 @@
+package demo.main;
+
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
@@ -156,26 +158,33 @@ public class CombatSystem {
 
         Position tp = target.getComponent(Position.class);
         Collision col = target.getComponent(Collision.class);
-
-        double x = tp.x + col.offsetX;
-        double y = tp.y + col.offsetY;
-
-        int w = col.width;
-        int h = col.height;
-
-        int offsetX = ThreadLocalRandom.current().nextInt(0, w);
-        int offsetY = ThreadLocalRandom.current().nextInt(0, h);
-
+      //random damage text spawn
+//        double x = tp.x + col.offsetX;
+//        double y = tp.y + col.offsetY; 
+//        int w = col.width;
+//        int h = col.height;
+//
+//        int offsetX = ThreadLocalRandom.current().nextInt(0, w);
+//        int offsetY = ThreadLocalRandom.current().nextInt(0, h);
+         
+        
+        //head position spawn
+        double headX = tp.x + col.offsetX + (col.width / 2 - 5);
+        double headY = tp.y + col.offsetY - 10; //10px above head
+        
+        
         Entity textEntity = new Entity();
-        textEntity.addComponent(new Position(x, y));
-
+        //textEntity.addComponent(new Position(x, y));
+        textEntity.addComponent(new Position(headX, headY));
+        
         RenderTextComponent rtc =
                 isCrit ? new RenderTextComponent(Color.ORANGE, 18)
                        : new RenderTextComponent(Color.WHITE, 14);
 
         textEntity.addComponent(rtc);
 
-        DamageTextComponent dt = new DamageTextComponent(text, offsetX, offsetY);
+        //DamageTextComponent dt = new DamageTextComponent(text, offsetX, offsetY);
+        DamageTextComponent dt = new DamageTextComponent(text, 0, 0);
 
         if (isCrit) {
             dt.isCrit = true;

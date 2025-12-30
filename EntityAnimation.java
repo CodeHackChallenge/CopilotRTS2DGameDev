@@ -1,31 +1,51 @@
 package demo.main;
-
-import java.awt.image.BufferedImage;
  
+import java.util.HashMap;
+import java.util.Map;
 
 public class EntityAnimation implements Component {
 
-	private BufferedImage[] frames;
-	private Animation animation;
-	private int delay;
-	
-	public EntityAnimation(String path, int delay) {
-		this.delay = delay;
-		
-		frames = new BufferedImage[13];
-		
-		for(int i = 0; i < 13; i++) {
-			frames[i] = SpritesheetManager.getInstance()
-					                      .getSubImage(path, i * 64, 0, 64, 64);
-			
-		} 
-		
-		animation = new Animation(frames, delay);
-	}
-	
-	public void delay(int delay) { this.delay = delay;}
-	public Animation getAnimation() { return animation;}
-	public void setAnimation() { animation.update();}
-	public BufferedImage[] getFrame() { return frames;}
-	public BufferedImage getFrame(int index) { return frames[index];}
+    private Map<String, Animation> animations = new HashMap<>();
+    private Animation current;
+    private String currentName;
+
+    public EntityAnimation() {}
+
+    // ---------------------------------------------------------
+    // Add a named animation
+    // ---------------------------------------------------------
+    public void addAnimation(String name, Animation anim) {
+        animations.put(name, anim);
+
+        // If this is the first animation added, set it as default
+        if (current == null) {
+            current = anim;
+            currentName = name;
+        }
+    }
+
+    // ---------------------------------------------------------
+    // Switch animation by name
+    // ---------------------------------------------------------
+    public void play(String name) {
+        if (!name.equals(currentName)) {
+            current = animations.get(name);
+            currentName = name;
+
+            // Reset animation state
+            current.currentFrame = 0;
+            current.timer = 0f;
+        }
+    }
+
+    // ---------------------------------------------------------
+    // Get current animation
+    // ---------------------------------------------------------
+    public Animation getAnimation() {
+        return current;
+    }
+
+    public String getCurrentName() {
+        return currentName;
+    }
 }
