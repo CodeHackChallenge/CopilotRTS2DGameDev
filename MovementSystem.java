@@ -1,3 +1,7 @@
+package demo.main;
+
+import java.util.List;
+
 public class MovementSystem {
 
     private MouseInput mouse;
@@ -22,59 +26,57 @@ public class MovementSystem {
                 mt.x = mouse.clickX;
                 mt.y = mouse.clickY;
                 mt.hasTarget = true;
+               
+                //compute distance once
+                double dx = mt.x - pos.x;
+                double dy = mt.y - pos.y;
+                
+                Vector2D dir = new Vector2D(dx, dy);
+                dir.normalize();
+                
+                mt.dirX = dir.x;
+                mt.dirY = dir.y;
+			 
                 mouse.clicked = false;
             }
 
             if (!mt.hasTarget) continue;
 
+            double dx = mt.x - pos.x;
+            double dy = mt.y - pos.y;
+            
+            double dist = Math.sqrt(dx * dx + dy * dy); 
+            //Vector2D dir = new Vector2D(dx, dy);
+            //double dist = dir.length();
+            double speed = 120; // pixels per second
+            //dir.normalize();
+           /*
             // ---------------------------------------------------------
-            // Compute direction
+            // Move toward target using the locked direction
             // ---------------------------------------------------------
             double dx = mt.x - pos.x;
             double dy = mt.y - pos.y;
-
-            // ---------------------------------------------------------
-            // ⭐ FIX 1: Remove tiny vertical drift
-            // If dy is extremely small, treat it as zero
-            // ---------------------------------------------------------
-            if (Math.abs(dy) < 0.0001) {
-                dy = 0;
-            }
-
-            Vector2D dir = new Vector2D(dx, dy);
-            double dist = dir.length();
-
-            double speed = 120; // pixels per second
-
-            // ---------------------------------------------------------
-            // ⭐ FIX 2: Snap to target if close enough
-            // Prevents oscillation and jitter
-            // ---------------------------------------------------------
+			*/
+            //double dist = Math.sqrt(dx * dx + dy * dy); 
+            
+            // --------------------------------------------------------- 
+            // snap if close
+            // --------------------------------------------------------- 
             if (dist <= speed * delta) {
                 pos.x = mt.x;
                 pos.y = mt.y;
                 mt.hasTarget = false;
                 continue;
-            }
-
-            // ---------------------------------------------------------
-            // Normalize direction
-            // ---------------------------------------------------------
-            dir.normalize();
-
+            }  
+            
+           // dir.normalize();
+            
             // ---------------------------------------------------------
             // Apply movement
             // ---------------------------------------------------------
-            pos.x += dir.x * speed * delta;
-            pos.y += dir.y * speed * delta;
-
-            // ---------------------------------------------------------
-            // ⭐ FIX 3: Clamp Y when movement is horizontal
-            // If target Y == start Y, keep Y perfectly stable
-            // ---------------------------------------------------------
-            if (dy == 0) {
-                pos.y = Math.round(pos.y);
-            }
+            pos.x += mt.dirX * speed * delta;
+            pos.y += mt.dirY * speed * delta;
+            System.out.println("pos.y=" + pos.y);
         }
     }
 }
