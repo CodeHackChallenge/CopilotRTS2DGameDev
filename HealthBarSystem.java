@@ -1,3 +1,10 @@
+package demo.main;
+
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.util.List;
+
 public class HealthBarSystem {
 
     private static final Color HP_GREEN  = new Color(46, 204, 113);
@@ -7,6 +14,9 @@ public class HealthBarSystem {
 
     public void render(Graphics2D g, List<Entity> entities) {
 
+    	//disable ati-aliasing
+    	Object oldAA = g.getRenderingHint(RenderingHints.KEY_ANTIALIASING);
+    	g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
         for (Entity e : entities) {
 
             Position pos = e.getComponent(Position.class);
@@ -52,6 +62,15 @@ public class HealthBarSystem {
             // Border
             g.setColor(Color.BLACK);
             g.drawRect(barX, barY, bar.width, bar.height);
-        }
-    }
+            
+            System.out.println("rp.x="+rp.x+" "
+            		+ "col.offsetX="+col.offsetX+" "
+            				+ "col.width="+col.width+" "
+            						+ "bar.offsetX="+bar.offsetX);
+            						 
+        }//foreach
+        
+        //disable anti-alising
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, oldAA);
+    }//render
 }
