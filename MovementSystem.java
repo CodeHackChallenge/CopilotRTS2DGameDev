@@ -28,25 +28,53 @@ public class MovementSystem {
             if (!mt.hasTarget) continue;
 
             // ---------------------------------------------------------
-            // Move toward target
+            // Compute direction
             // ---------------------------------------------------------
             double dx = mt.x - pos.x;
             double dy = mt.y - pos.y;
 
+            // ---------------------------------------------------------
+            // ⭐ FIX 1: Remove tiny vertical drift
+            // If dy is extremely small, treat it as zero
+            // ---------------------------------------------------------
+            if (Math.abs(dy) < 0.0001) {
+                dy = 0;
+            }
+
             Vector2D dir = new Vector2D(dx, dy);
             double dist = dir.length();
 
-            // If close enough, stop
-            if (dist < 2) {
+            double speed = 120; // pixels per second
+
+            // ---------------------------------------------------------
+            // ⭐ FIX 2: Snap to target if close enough
+            // Prevents oscillation and jitter
+            // ---------------------------------------------------------
+            if (dist <= speed * delta) {
+                pos.x = mt.x;
+                pos.y = mt.y;
                 mt.hasTarget = false;
                 continue;
             }
 
+            // ---------------------------------------------------------
+            // Normalize direction
+            // ---------------------------------------------------------
             dir.normalize();
 
-            double speed = 120; // pixels per second
+            // ---------------------------------------------------------
+            // Apply movement
+            // ---------------------------------------------------------
             pos.x += dir.x * speed * delta;
             pos.y += dir.y * speed * delta;
+
+            // ---------------------------------------------------------
+            // ⭐ FIX 3: Clamp Y when movement is horizontal
+            // If target Y == start Y, keep Y perfectly stable
+            // ---------------------------------------------------------
+            if (dy == 0) {
+                pos.y = Math.round(pos.y);
+            }
         }
     }
 }
