@@ -1,66 +1,106 @@
-pos.y=321.603623605417
-pos.y=323.207247210834
-pos.y=324.810870816251
-pos.y=326.414494421668
-pos.y=328.018118027085
-pos.y=329.621741632502
-pos.y=331.225365237919
-pos.y=332.828988843336
-pos.y=334.432612448753
-pos.y=336.03623605417
-pos.y=337.639859659587
-pos.y=339.243483265004
-pos.y=340.847106870421
-pos.y=342.450730475838
-pos.y=344.054354081255
-pos.y=345.657977686672
-pos.y=347.261601292089
-pos.y=348.865224897506
-pos.y=350.468848502923
-pos.y=352.07247210834
-pos.y=353.676095713757
-pos.y=355.279719319174
-pos.y=356.883342924591
-pos.y=358.486966530008
-pos.y=360.090590135425
-pos.y=361.694213740842
-pos.y=363.297837346259
-pos.y=364.901460951676
-pos.y=366.50508455709297
-pos.y=368.10870816250997
-pos.y=369.71233176792697
-pos.y=371.31595537334397
-pos.y=372.91957897876097
-pos.y=374.52320258417797
-pos.y=376.12682618959496
-pos.y=377.73044979501196
-pos.y=379.33407340042896
-pos.y=380.93769700584596
-pos.y=382.54132061126296
-pos.y=384.14494421667996
-pos.y=385.74856782209696
-pos.y=387.35219142751396
-pos.y=388.95581503293096
-pos.y=390.55943863834796
-pos.y=392.16306224376495
-pos.y=393.76668584918195
-pos.y=395.37030945459895
-pos.y=396.97393306001595
-pos.y=398.57755666543295
-pos.y=400.18118027084995
-pos.y=401.78480387626695
-pos.y=403.38842748168395
-pos.y=404.99205108710095
-pos.y=406.59567469251795
-pos.y=408.19929829793494
-pos.y=409.80292190335194
-pos.y=411.40654550876894
-pos.y=413.01016911418594
-pos.y=414.61379271960294
-pos.y=416.21741632501994
-pos.y=417.82103993043694
-pos.y=419.42466353585394
-pos.y=421.02828714127094
-pos.y=422.63191074668794
-pos.y=424.23553435210493
-pos.y=425.83915795752193
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
+import java.util.List;
+
+public class RenderSystem {
+	 
+	
+	
+    public void render(Graphics2D g, List<Entity> entities) {
+
+        for (Entity e : entities) {
+        	RenderPosition rp = e.getComponent(RenderPosition.class);
+        	Position pos = e.getComponent(Position.class);
+        	
+            if (pos == null || rp == null) continue;
+            
+        	rp.x = (int)Math.round(pos.x);
+        	rp.y = (int)Math.round(pos.y);
+        	//System.out.println(rp.x + " "+ rp.y);
+            //round position
+           // int baseX = (int)Math.round(pos.x);
+           // int baseY = (int)Math.round(pos.y);
+            
+            // =========================================================
+            // 1. DRAW SPRITE / ANIMATION
+            // =========================================================
+            EntityAnimation animComp = e.getComponent(EntityAnimation.class);
+            if (animComp != null) {
+
+                Animation anim = animComp.getAnimation();
+                if (anim != null && anim.frames != null) {
+//                	//for smooth movement
+//                	int drawX = (int)Math.round(pos.x);
+//                	int drawY = (int)Math.round(pos.y);
+                	
+                    BufferedImage frame = anim.frames[anim.currentFrame];
+                    if (frame != null) {
+                       // g.drawImage(frame, rp.x, rp.y, null);
+                        
+                    }
+                }
+            }
+
+            // =========================================================
+            // 2. DRAW DAMAGE TEXT (always above sprite)
+            // =========================================================
+            DamageTextComponent dt = e.getComponent(DamageTextComponent.class);
+            RenderTextComponent rtc = e.getComponent(RenderTextComponent.class);
+
+            if (dt != null && rtc != null) {
+
+                g.setColor(rtc.color);
+                g.setFont(rtc.font);
+
+                int drawX = rp.x + (int)Math.round(dt.offsetX);
+                int drawY = rp.y + (int)Math.round(dt.offsetY);
+
+                g.drawString(dt.text, drawX, drawY);
+            }
+            // =========================================================
+            // Move marker
+            // =========================================================
+            MovementTarget mt = e.getComponent(MovementTarget.class);
+            if(mt != null && mt.hasTarget) {
+            	g.setColor(Color.YELLOW);
+            	g.fillOval((int)mt.x - 4, (int)mt.y - 4, 8, 8);
+            }
+            
+           
+            // =========================================================
+            // 3. DEBUG: COLLISION BOX
+            // =========================================================
+            Collision col = e.getComponent(Collision.class);
+            if (col != null) {
+//            	int colX = baseX + col.offsetX;
+//            	int colY = baseY + col.offsetY; 
+            	
+                g.setColor(new Color(0, 255, 0, 120)); // semi‑transparent green
+                g.drawRect(rp.x + col.offsetX, 
+                		   rp.y + col.offsetY, 
+                		   col.width, 
+                		   col.height);
+                
+            }
+
+            // =========================================================
+            // 4. DEBUG: ATTACK HITBOX
+            // =========================================================
+            AttackHitbox hit = e.getComponent(AttackHitbox.class);
+            if (hit != null && hit.width > 0 && hit.height > 0) {
+//            	int hitX = baseX + hit.offsetX;
+//            	int hitY = baseY + hit.offsetY; 
+            	
+                g.setColor(new Color(255, 0, 0, 120)); // semi‑transparent red
+                g.drawRect(rp.x + hit.offsetX, 
+                		   rp.y + hit.offsetY, 
+                		   hit.width, 
+                		   hit.height);
+                
+            }
+             
+        }
+    }
+     
+    
